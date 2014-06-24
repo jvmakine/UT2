@@ -9,7 +9,7 @@ import fi.haju.ut2.ui.Game;
 /**
  * Class to start the client
  */
-public class ClientRunner {
+public class GameRunner {
 
   public static void main(String[] args) throws Exception {
     Injector injector = Guice.createInjector(new GameModule());

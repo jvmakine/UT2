@@ -206,7 +206,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>fi.haju.ut2.runners.ClientRunner</mainClass>
+          <mainClass>fi.haju.ut2.runners.GameRunner</mainClass>
           <arguments></arguments>
         </configuration>
       </plugin>
