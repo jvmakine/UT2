@@ -9,6 +9,7 @@ public final class VoxelOctree {
 
   public VoxelNode[] corners = new VoxelNode[8];
   public VoxelOctree[] children;
+  public VoxelOctree parent;
   public int depth;
   
   protected VoxelOctree() { }
@@ -104,6 +105,11 @@ public final class VoxelOctree {
     children[7].corners[5] = children[4].corners[6];
     children[7].corners[6] = children[6].corners[7]; 
     children[7].corners[7] = corners[7];
+    
+    for(int i = 0; i < 8; ++i) {
+      children[i].depth = depth + 1;
+      children[i].parent = this;
+    }
   }
 
   

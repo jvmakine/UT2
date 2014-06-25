@@ -58,4 +58,11 @@ public final class Position {
     return average(first, rest);
   }
 
+  public double distance(Position p) {
+    double dx = p.x - x;
+    double dy = p.y - y;
+    double dz = p.z - z;
+    return Math.sqrt(dx*dx + dy*dy + dz*dz);
+  }
+
 }

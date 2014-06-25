@@ -14,8 +14,9 @@ public class GameModule extends AbstractModule {
   }
   
   private VoxelOctree octree() {
-    VoxelOctree result = new VoxelOctree(new Position(-1, -1, -1), 2);
+    VoxelOctree result = new VoxelOctree(new Position(-2, -2, -2), 4);
     result.divide();
+    result.children[0].divide();
     return result;
   }
 
