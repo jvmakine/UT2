@@ -29,6 +29,14 @@ public final class VoxelOctree {
   }
   
   public void divide() {
+    for(VoxelOctree n : neighbours) {
+      if (n != null) {
+        if (n.depth < depth) {
+          n.divide();
+        }
+      }
+    }
+    
     children = new VoxelOctree[8];
     children[0] = new VoxelOctree();
     children[0].corners[0] = corners[0];
