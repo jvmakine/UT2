@@ -1,5 +1,7 @@
 package fi.haju.ut2.ui.render.renderers;
 
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
@@ -7,6 +9,7 @@ import javax.inject.Singleton;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.jme3.asset.AssetManager;
@@ -31,9 +34,9 @@ public class OctreeRenderer {
     this.assetManager = assetManager;
   }
   
-  private void sphere(Position pos) {
+  private void sphere(Position pos, double size) {
     Geometry node = MeshUtils.makeSimpleMesh(
-        new Sphere(6, 6, 0.05f),
+        new Sphere(6, 6, (float)size * 0.1f),
         new ColorRGBA(0.4f, 0.7f, 0.3f, 1.0f),
         assetManager);
     node.setLocalTranslation((float)pos.x, (float)pos.y, (float)pos.z);
@@ -47,13 +50,16 @@ public class OctreeRenderer {
   
   public void render(VoxelOctree root) {
     Set<Pair<VoxelNode, VoxelNode>> connections = Sets.newHashSet();
-    Set<VoxelNode> nodes = Sets.newHashSet();
+    Map<VoxelNode, Integer> nodes = Maps.newHashMap();
     Queue<VoxelOctree> tbp = Queues.newArrayDeque();
     tbp.add(root);
     while (!tbp.isEmpty()) {
       VoxelOctree octree = tbp.remove();
       for (VoxelNode node : octree.corners) {
-        nodes.add(node);
+        Integer oldDepth = nodes.get(node);
+        if (oldDepth == null) {
+          nodes.put(node, octree.depth); 
+        }
       }
       connections.add(Pair.of(octree.corners[0], octree.corners[1]));
       connections.add(Pair.of(octree.corners[1], octree.corners[2]));
@@ -88,9 +94,9 @@ public class OctreeRenderer {
     }
   }
 
-  private void drawNodes(Set<VoxelNode> nodes) {
-    for (VoxelNode node : nodes) {
-      sphere(node.position);
+  private void drawNodes(Map<VoxelNode, Integer> nodes) {
+    for (Entry<VoxelNode, Integer> entry : nodes.entrySet()) {
+      sphere(entry.getKey().position, Math.pow(0.65, entry.getValue()));
     }
   }
   
