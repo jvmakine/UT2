@@ -10,6 +10,7 @@ public final class VoxelOctree {
   public VoxelOctree[] children;
   public VoxelOctree[] neighbours = new VoxelOctree[6];
   public VoxelOctree parent;
+  public Position vertexPosition = null;
   public Function3d function;
   public int depth;
   
@@ -28,6 +29,12 @@ public final class VoxelOctree {
     corners[5] = node(corners[1].position.yplus(side));
     corners[6] = node(corners[2].position.yplus(side));
     corners[7] = node(corners[3].position.yplus(side));
+    
+    updateVertex();
+  }
+  
+  public Position center() {
+    return Position.average(corners[0].position, corners[7].position);
   }
   
   public void divideAllToLevel(int level) {
@@ -39,6 +46,7 @@ public final class VoxelOctree {
   }
   
   public void divide() {
+    if(children != null) return;
     for(VoxelOctree n : neighbours) {
       if (n != null) {
         if (n.depth < depth) {
@@ -124,12 +132,6 @@ public final class VoxelOctree {
     children[7].corners[6] = children[6].corners[7]; 
     children[7].corners[7] = corners[7];
     
-    for(int i = 0; i < 8; ++i) {
-      children[i].depth = depth + 1;
-      children[i].parent = this;
-      children[i].function = function;
-    }
-    
     neighbour(0, children[0], childNeighbour(neighbours[0], 4));
     neighbour(1, children[0], childNeighbour(neighbours[1], 1));
     neighbour(2, children[0], childNeighbour(neighbours[2], 3));
@@ -174,6 +176,29 @@ public final class VoxelOctree {
     neighbour(4, children[7], childNeighbour(neighbours[4], 4));
     neighbour(5, children[7], childNeighbour(neighbours[5], 3));
     
+    for(int i = 0; i < 8; ++i) {
+      children[i].depth = depth + 1;
+      children[i].parent = this;
+      children[i].function = function;
+      children[i].updateVertex();
+    }
+    
+  }
+  
+  private void updateVertex() {
+    boolean val = corners[0].positive;
+    boolean hasVertex = false;
+    for (int i = 1; i < 8; ++i) {
+      if (corners[i].positive != val) {
+        hasVertex = true;
+        break;
+      }
+    }
+    if (hasVertex) {
+      vertexPosition = center(); 
+    } else {
+      vertexPosition = null;
+    }
   }
 
   private final static void neighbour(int neigh, VoxelOctree from, VoxelOctree to) {

@@ -4,7 +4,7 @@ import com.google.inject.AbstractModule;
 import com.jme3.system.AppSettings;
 
 import fi.haju.ut2.geometry.Position;
-import fi.haju.ut2.voxels.functions.SinoidalFunction;
+import fi.haju.ut2.voxels.functions.SphericalFunction;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 
 public class GameModule extends AbstractModule {
@@ -15,9 +15,8 @@ public class GameModule extends AbstractModule {
   }
   
   private VoxelOctree octree() {
-    VoxelOctree result = new VoxelOctree(new Position(-5, -5, -5), 10, new SinoidalFunction());
-    result.children[0].divide();
-    result.children[0].children[1].divide();
+    VoxelOctree result = new VoxelOctree(new Position(-5, -5, -5), 10, new SphericalFunction(2));
+    result.divideAllToLevel(4);
     return result;
   }
 
