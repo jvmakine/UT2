@@ -34,10 +34,10 @@ public class OctreeRenderer {
     this.assetManager = assetManager;
   }
   
-  private void sphere(Position pos, double size) {
+  private void sphere(Position pos, double size, boolean positive) {
     Geometry node = MeshUtils.makeSimpleMesh(
         new Sphere(6, 6, (float)size * 0.1f),
-        new ColorRGBA(0.4f, 0.7f, 0.3f, 1.0f),
+        positive ? new ColorRGBA(0.4f, 0.7f, 0.3f, 1.0f) : new ColorRGBA(0.2f, 0.25f, 0.15f, 1.0f),
         assetManager);
     node.setLocalTranslation((float)pos.x, (float)pos.y, (float)pos.z);
     rootNode.attachChild(node);
@@ -96,7 +96,7 @@ public class OctreeRenderer {
 
   private void drawNodes(Map<VoxelNode, Integer> nodes) {
     for (Entry<VoxelNode, Integer> entry : nodes.entrySet()) {
-      sphere(entry.getKey().position, Math.pow(0.65, entry.getValue()));
+      sphere(entry.getKey().position, Math.pow(0.65, entry.getValue()), entry.getKey().positive);
     }
   }
   

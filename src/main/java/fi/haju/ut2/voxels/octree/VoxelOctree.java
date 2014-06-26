@@ -1,7 +1,7 @@
 package fi.haju.ut2.voxels.octree;
 
 import fi.haju.ut2.geometry.Position;
-import static fi.haju.ut2.voxels.octree.VoxelNode.node;
+import fi.haju.ut2.voxels.functions.Function3d;
 import static fi.haju.ut2.geometry.Position.average;
 
 public final class VoxelOctree {
@@ -10,11 +10,13 @@ public final class VoxelOctree {
   public VoxelOctree[] children;
   public VoxelOctree[] neighbours = new VoxelOctree[6];
   public VoxelOctree parent;
+  public Function3d function;
   public int depth;
   
   protected VoxelOctree() { }
   
-  public VoxelOctree(Position upperLeftBackCorner, double side) {
+  public VoxelOctree(Position upperLeftBackCorner, double side, Function3d function) {
+    this.function = function;
     depth = 0;
     // Upper side
     corners[0] = node(upperLeftBackCorner);
@@ -117,6 +119,7 @@ public final class VoxelOctree {
     for(int i = 0; i < 8; ++i) {
       children[i].depth = depth + 1;
       children[i].parent = this;
+      children[i].function = function;
     }
     
     neighbour(0, children[0], childNeighbour(neighbours[0], 4));
@@ -187,6 +190,10 @@ public final class VoxelOctree {
     if (neighbour == null) return null;
     if (neighbour.children == null) return neighbour;
     return neighbour.children[child];
+  }
+  
+  private final VoxelNode node(Position pos) {
+    return VoxelNode.node(pos, function);
   }
   
   
