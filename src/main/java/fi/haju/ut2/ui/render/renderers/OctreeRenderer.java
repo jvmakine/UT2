@@ -36,8 +36,8 @@ public class OctreeRenderer {
   
   private void sphere(Position pos, double size, boolean positive) {
     Geometry node = MeshUtils.makeSimpleMesh(
-        new Sphere(6, 6, (float)size * 0.1f),
-        positive ? new ColorRGBA(0.4f, 0.7f, 0.3f, 1.0f) : new ColorRGBA(0.2f, 0.25f, 0.15f, 1.0f),
+        new Sphere(6, 6, (float)size * 0.2f),
+        positive ? new ColorRGBA(0.4f, 0.7f, 0.4f, 1.0f) : new ColorRGBA(0.1f, 0.17f, 0.1f, 1.0f),
         assetManager);
     node.setLocalTranslation((float)pos.x, (float)pos.y, (float)pos.z);
     rootNode.attachChild(node);

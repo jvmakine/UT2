@@ -30,6 +30,14 @@ public final class VoxelOctree {
     corners[7] = node(corners[3].position.yplus(side));
   }
   
+  public void divideAllToLevel(int level) {
+    if(depth >= level) return;
+    if (children == null) divide();
+    for(int i = 0; i < 8; ++i) {
+      children[i].divideAllToLevel(level);
+    }
+  }
+  
   public void divide() {
     for(VoxelOctree n : neighbours) {
       if (n != null) {
