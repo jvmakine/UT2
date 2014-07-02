@@ -29,7 +29,7 @@ public class Game extends SimpleApplication {
     octreeRenderer.setup(rootNode, assetManager);
     octreeVertexRenderer.setup(rootNode, assetManager);
     octreeVertexRenderer.render(octree);
-    //octreeRenderer.render(octree);
+    octreeRenderer.render(octree);
   }
 
 }

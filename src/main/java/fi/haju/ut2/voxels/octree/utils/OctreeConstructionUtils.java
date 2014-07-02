@@ -1,95 +1,9 @@
 package fi.haju.ut2.voxels.octree.utils;
 
-import static fi.haju.ut2.geometry.Position.average;
-import static fi.haju.ut2.voxels.octree.VoxelNode.node;
-
-import fi.haju.ut2.voxels.functions.Function3d;
-import fi.haju.ut2.voxels.octree.VoxelNode;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 
 public final class OctreeConstructionUtils {
-  
-  public static VoxelOctree[] createChildren(VoxelNode[] corners, Function3d function) {
-    VoxelOctree[] children = new VoxelOctree[8];
-    children[0] = new VoxelOctree();
-    children[0].corners[0] = corners[0];
-    for (int i = 1; i < 8; ++i) {
-      children[0].corners[i] = node(average(corners[0].position, corners[i].position), function);
-    }
     
-    children[1] = new VoxelOctree();
-    children[1].corners[0] = children[0].corners[1];
-    children[1].corners[1] = corners[1];
-    children[1].corners[2] = node(average(corners[1].position, corners[2].position), function);
-    children[1].corners[3] = children[0].corners[2];
-    children[1].corners[4] = children[0].corners[5];
-    children[1].corners[5] = node(average(corners[1].position, corners[5].position), function);
-    children[1].corners[6] = node(average(corners[1].position, corners[6].position), function);
-    children[1].corners[7] = children[0].corners[6];
-    
-    children[2] = new VoxelOctree();
-    children[2].corners[0] = children[1].corners[3];
-    children[2].corners[1] = children[1].corners[2];
-    children[2].corners[2] = corners[2];
-    children[2].corners[3] = node(average(corners[2].position, corners[3].position), function);
-    children[2].corners[4] = children[1].corners[7];
-    children[2].corners[5] = children[1].corners[6];
-    children[2].corners[6] = node(average(corners[2].position, corners[6].position), function);
-    children[2].corners[7] = node(average(corners[2].position, corners[7].position), function);
-    
-    children[3] = new VoxelOctree();
-    children[3].corners[0] = children[0].corners[3];
-    children[3].corners[1] = children[0].corners[2];
-    children[3].corners[2] = children[2].corners[3];
-    children[3].corners[3] = corners[3];
-    children[3].corners[4] = children[0].corners[7];
-    children[3].corners[5] = children[0].corners[6];
-    children[3].corners[6] = children[2].corners[7];
-    children[3].corners[7] = node(average(corners[3].position, corners[7].position), function);
-    
-    children[4] = new VoxelOctree();
-    children[4].corners[0] = children[0].corners[4];
-    children[4].corners[1] = children[0].corners[5];
-    children[4].corners[2] = children[0].corners[6];
-    children[4].corners[3] = children[0].corners[7];
-    children[4].corners[4] = corners[4];
-    children[4].corners[5] = node(average(corners[4].position, corners[5].position), function);
-    children[4].corners[6] = node(average(corners[4].position, corners[6].position), function);
-    children[4].corners[7] = node(average(corners[4].position, corners[7].position), function);
-    
-    children[5] = new VoxelOctree();
-    children[5].corners[0] = children[1].corners[4];
-    children[5].corners[1] = children[1].corners[5];
-    children[5].corners[2] = children[1].corners[6];
-    children[5].corners[3] = children[1].corners[7];
-    children[5].corners[4] = children[4].corners[5];
-    children[5].corners[5] = corners[5];
-    children[5].corners[6] = node(average(corners[5].position, corners[6].position), function);
-    children[5].corners[7] = children[4].corners[6];
-    
-    children[6] = new VoxelOctree();
-    children[6].corners[0] = children[2].corners[4];
-    children[6].corners[1] = children[2].corners[5];
-    children[6].corners[2] = children[2].corners[6];
-    children[6].corners[3] = children[2].corners[7];
-    children[6].corners[4] = children[5].corners[7];
-    children[6].corners[5] = children[5].corners[6];
-    children[6].corners[6] = corners[6];
-    children[6].corners[7] = node(average(corners[6].position, corners[7].position), function);
-    
-    children[7] = new VoxelOctree();
-    children[7].corners[0] = children[3].corners[4];
-    children[7].corners[1] = children[3].corners[5];
-    children[7].corners[2] = children[3].corners[6];
-    children[7].corners[3] = children[3].corners[7];
-    children[7].corners[4] = children[4].corners[7];
-    children[7].corners[5] = children[4].corners[6];
-    children[7].corners[6] = children[6].corners[7]; 
-    children[7].corners[7] = corners[7];
-    
-    return children;
-  }
-  
   public static void setupChildNeighbours(VoxelOctree children[], VoxelOctree neighbours[]) {
     neighbour(0, children[0], childNeighbour(neighbours[0], 4));
     neighbour(1, children[0], childNeighbour(neighbours[1], 1));

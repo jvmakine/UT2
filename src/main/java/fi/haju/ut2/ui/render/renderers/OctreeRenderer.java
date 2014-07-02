@@ -7,8 +7,6 @@ import java.util.Set;
 
 import javax.inject.Singleton;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
@@ -20,6 +18,8 @@ import com.jme3.scene.shape.Sphere;
 
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.ui.MeshUtils;
+import fi.haju.ut2.voxels.octree.VoxelEdge;
+import fi.haju.ut2.voxels.octree.VoxelFace;
 import fi.haju.ut2.voxels.octree.VoxelNode;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 
@@ -49,32 +49,23 @@ public class OctreeRenderer {
   }
   
   public void render(VoxelOctree root) {
-    Set<Pair<VoxelNode, VoxelNode>> connections = Sets.newHashSet();
+    Set<VoxelEdge> edges = Sets.newHashSet();
     Map<VoxelNode, Integer> nodes = Maps.newHashMap();
     Queue<VoxelOctree> tbp = Queues.newArrayDeque();
     tbp.add(root);
     while (!tbp.isEmpty()) {
       VoxelOctree octree = tbp.remove();
-      for (VoxelNode node : octree.corners) {
-        Integer oldDepth = nodes.get(node);
-        if (oldDepth == null) {
-          nodes.put(node, octree.depth); 
+      for (VoxelFace face : octree.faces) {
+        for (VoxelEdge edge : face.edges) {
+          edges.add(edge);
+          if (!nodes.containsKey(edge.minus)) {
+            nodes.put(edge.minus, octree.depth);
+          }
+          if (!nodes.containsKey(edge.plus)) {
+            nodes.put(edge.plus, octree.depth);
+          }
         }
       }
-      connections.add(Pair.of(octree.corners[0], octree.corners[1]));
-      connections.add(Pair.of(octree.corners[1], octree.corners[2]));
-      connections.add(Pair.of(octree.corners[2], octree.corners[3]));
-      connections.add(Pair.of(octree.corners[3], octree.corners[0]));
-      
-      connections.add(Pair.of(octree.corners[4], octree.corners[5]));
-      connections.add(Pair.of(octree.corners[5], octree.corners[6]));
-      connections.add(Pair.of(octree.corners[6], octree.corners[7]));
-      connections.add(Pair.of(octree.corners[7], octree.corners[4]));
-      
-      connections.add(Pair.of(octree.corners[0], octree.corners[4]));
-      connections.add(Pair.of(octree.corners[1], octree.corners[5]));
-      connections.add(Pair.of(octree.corners[2], octree.corners[6]));
-      connections.add(Pair.of(octree.corners[3], octree.corners[7]));
       
       if (octree.children != null) {
         for(VoxelOctree child : octree.children) {
@@ -85,12 +76,12 @@ public class OctreeRenderer {
       }
     }
     drawNodes(nodes);
-    drawEdges(connections);
+    drawEdges(edges);
   }
 
-  private void drawEdges(Set<Pair<VoxelNode, VoxelNode>> connections) {
-    for (Pair<VoxelNode, VoxelNode> edge : connections) {
-      line(edge.getLeft().position, edge.getRight().position);
+  private void drawEdges(Set<VoxelEdge> edges) {
+    for (VoxelEdge edge : edges) {
+      line(edge.minus.position, edge.plus.position);
     }
   }
 
