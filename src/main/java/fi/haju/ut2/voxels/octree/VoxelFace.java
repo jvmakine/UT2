@@ -35,9 +35,9 @@ public class VoxelFace {
       edges[i].divide(function);
     }
     children = new VoxelFace[4];
-    children[0] = face(edges[0].minusChild, edge(edges[0].dividor, dividor), edge(edges[3].dividor, dividor), edges[3].minusChild);
-    children[1] = face(edges[0].plusChild, edges[1].minusChild, edge(dividor, edges[1].dividor), children[0].edges[1]);
-    children[2] = face(children[1].edges[2], edges[1].plusChild, edges[2].plusChild, edge(dividor, edges[2].dividor));
+    children[0] = face(edges[0].minusChild, edge(edges[0].dividor, dividor, function), edge(edges[3].dividor, dividor, function), edges[3].minusChild);
+    children[1] = face(edges[0].plusChild, edges[1].minusChild, edge(dividor, edges[1].dividor, function), children[0].edges[1]);
+    children[2] = face(children[1].edges[2], edges[1].plusChild, edges[2].plusChild, edge(dividor, edges[2].dividor, function));
     children[3] = face(children[0].edges[2], children[2].edges[3], edges[2].minusChild, edges[3].plusChild);
   }
   

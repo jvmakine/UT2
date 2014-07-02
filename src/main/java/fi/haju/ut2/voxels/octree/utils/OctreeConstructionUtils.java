@@ -28,15 +28,15 @@ public final class OctreeConstructionUtils {
     corners[7] = node(corners[3].position.yplus(side), function);
     
     VoxelEdge[] edges = new VoxelEdge[12];
-    edges[0] = edge(corners[0], corners[1]);
-    edges[1] = edge(corners[1], corners[2]);
-    edges[2] = edge(corners[3], corners[2]);
-    edges[3] = edge(corners[0], corners[3]);
-    for(int i = 0; i < 4; ++i) edges[i + 4] = edge(corners[i], corners[i+4]);
-    edges[8] = edge(corners[4], corners[5]);
-    edges[9] = edge(corners[5], corners[6]);
-    edges[10] = edge(corners[7], corners[6]);
-    edges[11] = edge(corners[4], corners[7]);
+    edges[0] = edge(corners[0], corners[1], function);
+    edges[1] = edge(corners[1], corners[2], function);
+    edges[2] = edge(corners[3], corners[2], function);
+    edges[3] = edge(corners[0], corners[3], function);
+    for(int i = 0; i < 4; ++i) edges[i + 4] = edge(corners[i], corners[i+4], function);
+    edges[8] = edge(corners[4], corners[5], function);
+    edges[9] = edge(corners[5], corners[6], function);
+    edges[10] = edge(corners[7], corners[6], function);
+    edges[11] = edge(corners[4], corners[7], function);
     
     faces[0] = face(edges[0], edges[1], edges[2], edges[3]);
     faces[1] = face(edges[3], edges[7], edges[11], edges[4]);
@@ -47,14 +47,14 @@ public final class OctreeConstructionUtils {
     return faces;
   }
   
-  public static VoxelOctree[] constructChildren(VoxelNode dividor, VoxelFace[] faces) {
+  public static VoxelOctree[] constructChildren(VoxelNode dividor, VoxelFace[] faces, Function3d function) {
     VoxelEdge nedge[] = new VoxelEdge[6];
-    nedge[0] = edge(faces[0].dividor, dividor);
-    nedge[1] = edge(faces[1].dividor, dividor);
-    nedge[2] = edge(faces[2].dividor, dividor);
-    nedge[3] = edge(dividor, faces[3].dividor);
-    nedge[4] = edge(dividor, faces[4].dividor);
-    nedge[5] = edge(dividor, faces[5].dividor);
+    nedge[0] = edge(faces[0].dividor, dividor, function);
+    nedge[1] = edge(faces[1].dividor, dividor, function);
+    nedge[2] = edge(faces[2].dividor, dividor, function);
+    nedge[3] = edge(dividor, faces[3].dividor, function);
+    nedge[4] = edge(dividor, faces[4].dividor, function);
+    nedge[5] = edge(dividor, faces[5].dividor, function);
     
     VoxelEdge up[] = faces[0].dividingEdges();
     VoxelEdge west[] = faces[1].dividingEdges();

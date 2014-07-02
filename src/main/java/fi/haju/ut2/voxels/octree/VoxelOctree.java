@@ -1,10 +1,12 @@
 package fi.haju.ut2.voxels.octree;
 
+import java.util.Set;
+
+import com.google.common.collect.Sets;
+
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.voxels.functions.Function3d;
 import fi.haju.ut2.voxels.octree.utils.OctreeConstructionUtils;
-import static fi.haju.ut2.voxels.octree.VoxelFace.face;
-import static fi.haju.ut2.voxels.octree.VoxelEdge.edge;
 
 /**
  * Restricted octree, the depth of neighbors may differ only by one
@@ -48,7 +50,7 @@ public final class VoxelOctree {
     for(VoxelFace face : faces) face.divide(function);
     dividor = node(center());
     
-    children = OctreeConstructionUtils.constructChildren(dividor, faces);
+    children = OctreeConstructionUtils.constructChildren(dividor, faces, function);
     
     for(int i = 0; i < 8; ++i) {
       children[i].depth = depth + 1;
@@ -72,6 +74,19 @@ public final class VoxelOctree {
     
   private final VoxelNode node(Position pos) {
     return VoxelNode.node(pos, function);
+  }
+  
+  public Set<VoxelEdge> edges() {
+    Set<VoxelEdge> result = Sets.newHashSet();
+    for (VoxelFace face : faces) {
+      for (int i = 0; i < 4; ++i) result.add(face.edges[i]);
+    }
+    if (children != null) {
+      for(int i = 0; i < 8; ++i) {
+        result.addAll(children[i].edges());
+      }
+    }
+    return result;
   }
   
   public VoxelOctree up() { return neighbours[0]; }

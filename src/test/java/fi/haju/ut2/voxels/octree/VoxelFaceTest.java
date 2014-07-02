@@ -69,10 +69,10 @@ public class VoxelFaceTest {
     nodes[2] = node(pos(1,1,0), function);
     nodes[3] = node(pos(0,1,0), function);
     
-    edges[0] = edge(nodes[0], nodes[1]);
-    edges[1] = edge(nodes[1], nodes[2]);
-    edges[2] = edge(nodes[3], nodes[2]);
-    edges[3] = edge(nodes[0], nodes[3]);
+    edges[0] = edge(nodes[0], nodes[1], function);
+    edges[1] = edge(nodes[1], nodes[2], function);
+    edges[2] = edge(nodes[3], nodes[2], function);
+    edges[3] = edge(nodes[0], nodes[3], function);
     
     return face(edges[0], edges[1], edges[2], edges[3]);
   }

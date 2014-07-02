@@ -1,11 +1,7 @@
 package fi.haju.ut2.ui.render.renderers;
 
-import java.util.Queue;
-
 import javax.inject.Singleton;
 
-
-import com.google.common.collect.Queues;
 import com.jme3.asset.AssetManager;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
@@ -14,6 +10,7 @@ import com.jme3.scene.shape.Sphere;
 
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.ui.MeshUtils;
+import fi.haju.ut2.voxels.octree.VoxelEdge;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 
 @Singleton
@@ -37,18 +34,9 @@ public class OctreeVertexRenderer {
   }
   
   public void render(VoxelOctree root) {
-    Queue<VoxelOctree> tbp = Queues.newArrayDeque();
-    tbp.add(root);
-    while (!tbp.isEmpty()) {
-      VoxelOctree octree = tbp.remove();
-      if (octree.children != null) {
-        for(VoxelOctree child : octree.children) {
-          if (child != null) {
-            tbp.add(child);
-          }
-        }
-      } else if (octree.vertexPosition != null) {
-        sphere(octree.vertexPosition, 0.2f);
+    for(VoxelEdge edge : root.edges()) {      
+      if (edge.dividor ==  null && edge.vertex != null) {
+        sphere(edge.vertex, 0.2f);
       }
     }
   }
