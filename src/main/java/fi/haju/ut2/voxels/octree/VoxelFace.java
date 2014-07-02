@@ -1,5 +1,9 @@
 package fi.haju.ut2.voxels.octree;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import fi.haju.ut2.voxels.functions.Function3d;
 import static fi.haju.ut2.voxels.octree.VoxelNode.node;
 import static fi.haju.ut2.geometry.Position.average;
@@ -10,6 +14,7 @@ public class VoxelFace {
   public VoxelNode dividor = null;
   public VoxelFace[] children; // 0 == --, 1 = -+, 2 = +-, 3 = ++
   public VoxelEdge[] edges = new VoxelEdge[4];
+  public List<FaceSegment> faceSegments;
   
   public VoxelFace() {}
   
@@ -18,6 +23,7 @@ public class VoxelFace {
     edges[1] = e2;
     edges[2] = e3;
     edges[3] = e4;
+    faceSegments = calculateFaceSegements();
   }
   
   public static final VoxelFace face(VoxelEdge e1, VoxelEdge e2, VoxelEdge e3, VoxelEdge e4) {
@@ -39,6 +45,54 @@ public class VoxelFace {
     children[1] = face(edges[0].plusChild, edges[1].minusChild, edge(dividor, edges[1].dividor, function), children[0].edges[1]);
     children[2] = face(children[1].edges[2], edges[1].plusChild, edges[2].plusChild, edge(dividor, edges[2].dividor, function));
     children[3] = face(children[0].edges[2], children[2].edges[3], edges[2].minusChild, edges[3].plusChild);
+  }
+  
+  public List<FaceSegment> calculateFaceSegements() {
+    int index = calculateConnectionIndex();
+    switch(index) {
+    // No segments
+    case 0b0000 : 
+    case 0b1111 : return Lists.newArrayList();
+    // One corner
+    case 0b1000 :
+    case 0b0111 : return segment(edges[3], edges[0]);
+    case 0b0100 :
+    case 0b1011 : return segment(edges[0], edges[1]);
+    case 0b0010 :
+    case 0b1101 : return segment(edges[1], edges[2]);
+    case 0b0001 :
+    case 0b1110 :  return segment(edges[2], edges[3]);
+    // One dividor
+    case 0b1100 :
+    case 0b0011 : return segment(edges[3], edges[1]);
+    case 0b0110 :
+    case 0b1001 : return segment(edges[0], edges[2]);
+    // Ambiguity cases
+    case 0b1010 :
+    case 0b0101 : return solveAmbiguitySegment();
+    }
+    throw new IllegalArgumentException("Unknown index " + index);
+  }
+
+  private List<FaceSegment> solveAmbiguitySegment() {
+    // TODO proper hadling
+    List<FaceSegment> result = Lists.newArrayList();
+    result.addAll(segment(edges[0], edges[1]));
+    result.addAll(segment(edges[2], edges[3]));
+    return result;
+  }
+
+  private final List<FaceSegment> segment(VoxelEdge e1, VoxelEdge e2) {
+    return Lists.newArrayList(new FaceSegment(e1.vertex, e2.vertex));
+  }
+
+  private final int calculateConnectionIndex() {
+    int index = 0;
+    index = (index << 1) + (corner30().positive ? 1 : 0); 
+    index = (index << 1) + (corner01().positive ? 1 : 0);
+    index = (index << 1) + (corner12().positive ? 1 : 0);
+    index = (index << 1) + (corner23().positive ? 1 : 0);
+    return index;
   }
   
   public VoxelNode corner30() {
