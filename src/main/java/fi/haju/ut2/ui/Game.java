@@ -8,6 +8,7 @@ import com.jme3.system.AppSettings;
 
 import fi.haju.ut2.ui.render.modules.SimpleLightingModule;
 import fi.haju.ut2.ui.render.renderers.FaceSegmentRenderer;
+import fi.haju.ut2.ui.render.renderers.OctreeComponentRenderer;
 import fi.haju.ut2.ui.render.renderers.OctreeRenderer;
 import fi.haju.ut2.ui.render.renderers.OctreeVertexRenderer;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
@@ -20,6 +21,7 @@ public class Game extends SimpleApplication {
   @Inject private OctreeRenderer octreeRenderer;
   @Inject private OctreeVertexRenderer octreeVertexRenderer;
   @Inject private FaceSegmentRenderer faceSegmentRenderer;
+  @Inject private OctreeComponentRenderer octreeComponentRenderer;
   
   @Inject public Game(AppSettings appSettings) {
     setShowSettings(false);
@@ -31,10 +33,12 @@ public class Game extends SimpleApplication {
     octreeRenderer.setup(rootNode, assetManager);
     octreeVertexRenderer.setup(rootNode, assetManager);
     faceSegmentRenderer.setup(rootNode, assetManager);
+    octreeComponentRenderer.setup(rootNode, assetManager);
     
     octreeVertexRenderer.render(octree);
     octreeRenderer.render(octree);
-    faceSegmentRenderer.render(octree);
+    //faceSegmentRenderer.render(octree);
+    octreeComponentRenderer.render(octree);
   }
 
 }
