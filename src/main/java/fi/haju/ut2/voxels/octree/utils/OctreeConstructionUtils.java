@@ -2,13 +2,23 @@ package fi.haju.ut2.voxels.octree.utils;
 
 import static fi.haju.ut2.voxels.octree.VoxelEdge.edge;
 import static fi.haju.ut2.voxels.octree.VoxelFace.face;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.voxels.functions.Function3d;
+import fi.haju.ut2.voxels.octree.FaceSegment;
+import fi.haju.ut2.voxels.octree.OctreeComponent;
 import fi.haju.ut2.voxels.octree.VoxelEdge;
 import fi.haju.ut2.voxels.octree.VoxelFace;
 import fi.haju.ut2.voxels.octree.VoxelNode;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
-
 import static fi.haju.ut2.voxels.octree.VoxelNode.node;
 
 public final class OctreeConstructionUtils {
@@ -45,6 +55,90 @@ public final class OctreeConstructionUtils {
     faces[4] = face(edges[2], edges[6], edges[10], edges[7]);
     faces[5] = face(edges[8], edges[9], edges[10], edges[11]);
     return faces;
+  }
+  
+  public static List<OctreeComponent> createComponentsFromSegments(Set<FaceSegment> segments) {
+    Map<Position, OctreeComponent> endPoints = Maps.newHashMap();
+    List<OctreeComponent> components = Lists.newArrayList(); 
+    for (FaceSegment segment : segments) {
+      if (!endPoints.containsKey(segment.from) && !endPoints.containsKey(segment.to)) {
+        // New component
+        OctreeComponent component = new OctreeComponent();
+        component.vertices.add(segment.from);
+        component.vertices.add(segment.to);
+        endPoints.put(segment.from, component);
+        endPoints.put(segment.to, component);
+      } else if (!endPoints.containsKey(segment.from) && endPoints.containsKey(segment.to)) {
+        // Add to existing component
+        OctreeComponent component = endPoints.get(segment.to);
+        if (component.vertices.peekFirst() == segment.to) {
+          component.vertices.addFirst(segment.from);
+        } else {
+          component.vertices.addLast(segment.from);
+        }
+        endPoints.remove(segment.to);
+        endPoints.put(segment.from, component);
+      } else if (endPoints.containsKey(segment.from) && !endPoints.containsKey(segment.to)) {
+        // Add to existing component
+        OctreeComponent component = endPoints.get(segment.from);
+        if (component.vertices.peekFirst() == segment.from) {
+          component.vertices.addFirst(segment.to);
+        } else {
+          component.vertices.addLast(segment.to);
+        }
+        endPoints.remove(segment.from);
+        endPoints.put(segment.to, component);
+      } else {
+        // Both endpoints present
+        OctreeComponent fromComponent = endPoints.get(segment.from);
+        OctreeComponent toComponent = endPoints.get(segment.to);
+        if (fromComponent == toComponent) {
+          // Component loop ready
+          endPoints.remove(fromComponent.vertices.peekFirst());
+          endPoints.remove(fromComponent.vertices.peekLast());
+          components.add(fromComponent);
+        } else {
+          // Component connection
+          Position f1 = fromComponent.vertices.peekFirst();
+          Position f2 = fromComponent.vertices.peekLast();
+          Position t1 = toComponent.vertices.peekFirst();
+          Position t2 = toComponent.vertices.peekLast();
+          endPoints.remove(f1);
+          endPoints.remove(f2);
+          endPoints.remove(t1);
+          endPoints.remove(t2);
+          if (f2 == segment.from && t1 == segment.to) {
+            fromComponent.vertices.addAll(toComponent.vertices);
+            endPoints.put(f1, fromComponent);
+            endPoints.put(t2, fromComponent);
+          } else if (t1 == segment.from && f2 == segment.to) {
+            toComponent.vertices.addAll(fromComponent.vertices);
+            endPoints.put(f1, toComponent);
+            endPoints.put(t2, toComponent);
+          } else if (t2 == segment.from && f1 == segment.to) {
+            toComponent.vertices.addAll(fromComponent.vertices);
+            endPoints.put(f2, toComponent);
+            endPoints.put(t1, toComponent);
+          } else if (f1 == segment.from && t2 == segment.to) {
+            fromComponent.vertices.addAll(toComponent.vertices);
+            endPoints.put(f2, fromComponent);
+            endPoints.put(t1, fromComponent);
+          } else if ((t1 == segment.from && f1 == segment.to) || (f1 == segment.from && t1 == segment.to)) {
+            toComponent.vertices = Lists.newLinkedList(Lists.reverse(toComponent.vertices));
+            toComponent.vertices.addAll(fromComponent.vertices);
+            endPoints.put(t2, toComponent);
+            endPoints.put(f2, toComponent);
+          } else if ((f2 == segment.from && t2 == segment.to) || (t2 == segment.from && f2 == segment.to)) {
+            fromComponent.vertices.addAll(Lists.reverse(toComponent.vertices));
+            endPoints.put(f1, fromComponent);
+            endPoints.put(t1, fromComponent);
+          }
+          
+          
+        }
+      }
+    }
+    return components;
   }
   
   public static VoxelOctree[] constructChildren(VoxelNode dividor, VoxelFace[] faces, Function3d function) {

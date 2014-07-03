@@ -10,5 +10,10 @@ public class FaceSegment {
     this.from = from;
     this.to = to;
   }
+
+  @Override
+  public String toString() {
+    return "segment[" + from + " -> " + to + "]";
+  }
   
 }

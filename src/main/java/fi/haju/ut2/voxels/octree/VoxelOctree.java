@@ -1,13 +1,8 @@
 package fi.haju.ut2.voxels.octree;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import fi.haju.ut2.geometry.Position;
@@ -57,71 +52,28 @@ public final class VoxelOctree {
     
     for (VoxelFace face : faces) face.divide(function);
     dividor = node(center());
-    
     children = OctreeConstructionUtils.constructChildren(dividor, faces, function);
-    
     for (int i = 0; i < 8; ++i) {
       children[i].depth = depth + 1;
       children[i].parent = this;
       children[i].function = function;
-      children[i].calculateComponents();
     }
-    
     OctreeConstructionUtils.setupChildNeighbours(children, neighbours);
+    for(int i = 0; i < 6; ++i) {
+      if(neighbours[i] != null) neighbours[i].calculateComponents();
+    }
+    calculateComponents();
   }
   
-  private void calculateComponents() {
+  public void calculateComponents() {
     Set<FaceSegment> segments = Sets.newHashSet();
-    components = Lists.newArrayList();
     for (VoxelFace face : faces) {
-      segments.addAll(face.faceSegments);
+      segments.addAll(face.getSegments());
     }
-    Map<Position, OctreeComponent> endPoints = Maps.newHashMap();
-    for (FaceSegment segment : segments) {
-      if (!endPoints.containsKey(segment.from) && !endPoints.containsKey(segment.to)) {
-        // New component
-        OctreeComponent component = new OctreeComponent();
-        component.vertices.add(segment.from);
-        component.vertices.add(segment.to);
-        endPoints.put(segment.from, component);
-        endPoints.put(segment.to, component);
-      } else if (!endPoints.containsKey(segment.from) && endPoints.containsKey(segment.to)) {
-        // Add to existing component
-        OctreeComponent component = endPoints.get(segment.to);
-        if (component.vertices.peekFirst() == segment.to) {
-          component.vertices.addFirst(segment.from);
-        } else {
-          component.vertices.addLast(segment.from);
-        }
-        endPoints.remove(segment.to);
-        endPoints.put(segment.from, component);
-      } else if (endPoints.containsKey(segment.from) && !endPoints.containsKey(segment.to)) {
-        // Add to existing component
-        OctreeComponent component = endPoints.get(segment.from);
-        if (component.vertices.peekFirst() == segment.from) {
-          component.vertices.addFirst(segment.to);
-        } else {
-          component.vertices.addLast(segment.to);
-        }
-        endPoints.remove(segment.from);
-        endPoints.put(segment.to, component);
-      } else {
-        // Both endpoints present
-        OctreeComponent fromComponent = endPoints.get(segment.from);
-        OctreeComponent toComponent = endPoints.get(segment.to);
-        if (fromComponent == toComponent) {
-          // Compoonent loop ready
-          endPoints.remove(segment.from);
-          endPoints.remove(segment.to);
-          components.add(fromComponent);
-        } else {
-          // Component connection
-          endPoints.remove(fromComponent.vertices.removeLast());
-          endPoints.remove(toComponent.vertices.peekFirst());
-          endPoints.remove(toComponent.vertices.peekLast());
-          fromComponent.vertices.addAll(toComponent.vertices);
-          endPoints.put(fromComponent.vertices.peekLast(), fromComponent);
-        }
+    components = OctreeConstructionUtils.createComponentsFromSegments(segments);
+    if (children != null) {
+      for(int i = 0; i < 8; ++i) {
+        children[i].calculateComponents();
       }
     }
       

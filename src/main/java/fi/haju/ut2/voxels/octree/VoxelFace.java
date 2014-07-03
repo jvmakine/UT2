@@ -1,8 +1,10 @@
 package fi.haju.ut2.voxels.octree;
 
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import fi.haju.ut2.voxels.functions.Function3d;
 import static fi.haju.ut2.voxels.octree.VoxelNode.node;
@@ -13,6 +15,7 @@ public class VoxelFace {
   
   public VoxelNode dividor = null;
   public VoxelFace[] children; // 0 == --, 1 = -+, 2 = +-, 3 = ++
+  public VoxelFace parent = null;
   public VoxelEdge[] edges = new VoxelEdge[4];
   public List<FaceSegment> faceSegments;
   
@@ -23,7 +26,7 @@ public class VoxelFace {
     edges[1] = e2;
     edges[2] = e3;
     edges[3] = e4;
-    faceSegments = calculateFaceSegements();
+    calculateFaceSegements();
   }
   
   public static final VoxelFace face(VoxelEdge e1, VoxelEdge e2, VoxelEdge e3, VoxelEdge e4) {
@@ -45,9 +48,23 @@ public class VoxelFace {
     children[1] = face(edges[0].plusChild, edges[1].minusChild, edge(dividor, edges[1].dividor, function), children[0].edges[1]);
     children[2] = face(children[1].edges[2], edges[1].plusChild, edges[2].plusChild, edge(dividor, edges[2].dividor, function));
     children[3] = face(children[0].edges[2], children[2].edges[3], edges[2].minusChild, edges[3].plusChild);
+    for(VoxelFace face : children) {
+      face.parent = this;
+    }
+    // recalculate face segments as the vertices may have moved
+    recalculateFaceSegementsForParents();
   }
   
-  public List<FaceSegment> calculateFaceSegements() {
+  public void recalculateFaceSegementsForParents() {
+    calculateFaceSegements();
+    if (parent != null) parent.calculateFaceSegements();  
+  }
+  
+  public void calculateFaceSegements() {
+    faceSegments = getFaceSegements();
+  }
+  
+  public List<FaceSegment> getFaceSegements() {
     int index = calculateConnectionIndex();
     switch(index) {
     // No segments
@@ -117,6 +134,16 @@ public class VoxelFace {
     result[1] = children[1].edges[2];
     result[2] = children[2].edges[3];
     result[3] = children[3].edges[0];
+    return result;
+  }
+
+  public Set<FaceSegment> getSegments() {
+    Set<FaceSegment> result = Sets.newHashSet();
+    if (!hasChildren()) {
+      result.addAll(faceSegments);
+    } else {
+      for(int i = 0; i < 4; ++i) result.addAll(children[i].getSegments());
+    }
     return result;
   }
 

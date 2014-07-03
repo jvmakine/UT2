@@ -65,4 +65,9 @@ public final class Position {
     return Math.sqrt(dx*dx + dy*dy + dz*dz);
   }
 
+  @Override
+  public String toString() {
+    return "pos[" + x + ", " + y + ", " + z + "]";
+  }
+
 }

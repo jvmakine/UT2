@@ -11,6 +11,7 @@ public class VoxelEdge {
   
   public final VoxelNode minus;
   public final VoxelNode plus;
+  public VoxelEdge parent = null;
   
   public VoxelEdge minusChild;
   public VoxelEdge plusChild;
@@ -51,6 +52,16 @@ public class VoxelEdge {
     dividor = node(average(minus.position, plus.position), function);
     minusChild = edge(minus, dividor, function);
     plusChild = edge(dividor, plus, function);
+    minusChild.parent = this;
+    plusChild.parent = this;
+    updateParentVertex();
+  }
+
+  private void updateParentVertex() {
+    if (minusChild.vertex != null) vertex = minusChild.vertex;
+    else if (plusChild.vertex != null) vertex = plusChild.vertex;
+    else vertex = null;
+    if (parent != null) parent.updateParentVertex();
   }
   
 }
