@@ -10,5 +10,11 @@ public final class PositionWithNormal {
     this.position = position;
     this.normal = normal;
   }
+
+  @Override public String toString() {
+    return position.toString();
+  }
+  
+  
   
 }

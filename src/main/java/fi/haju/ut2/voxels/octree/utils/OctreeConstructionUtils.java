@@ -6,6 +6,7 @@ import static fi.haju.ut2.voxels.octree.VoxelFace.face;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -23,6 +24,8 @@ import static fi.haju.ut2.voxels.octree.VoxelNode.node;
 
 public final class OctreeConstructionUtils {
     
+  private static Logger log = Logger.getLogger(OctreeConstructionUtils.class.getName());
+  
   public static VoxelFace[] createInitialFaces(Position upperLeftBackCorner, double side, Function3d function) {
     VoxelFace[] faces = new VoxelFace[6];
     VoxelNode[] corners = new VoxelNode[8];
@@ -59,7 +62,7 @@ public final class OctreeConstructionUtils {
   
   public static List<OctreeComponent> createComponentsFromSegments(Set<FaceSegment> segments) {
     Map<PositionWithNormal, OctreeComponent> endPoints = Maps.newHashMap();
-    List<OctreeComponent> components = Lists.newArrayList(); 
+    List<OctreeComponent> components = Lists.newArrayList();
     for (FaceSegment segment : segments) {
       if (!endPoints.containsKey(segment.from) && !endPoints.containsKey(segment.to)) {
         // New component
@@ -69,7 +72,7 @@ public final class OctreeConstructionUtils {
         endPoints.put(segment.from, component);
         endPoints.put(segment.to, component);
       } else if (!endPoints.containsKey(segment.from) && endPoints.containsKey(segment.to)) {
-        // Add to existing component
+        // Add to existing component        
         OctreeComponent component = endPoints.get(segment.to);
         if (component.vertices.peekFirst() == segment.to) {
           component.vertices.addFirst(segment.from);
@@ -109,29 +112,31 @@ public final class OctreeConstructionUtils {
           endPoints.remove(t2);
           if (f2 == segment.from && t1 == segment.to) {
             fromComponent.vertices.addAll(toComponent.vertices);
-            endPoints.put(f1, fromComponent);
-            endPoints.put(t2, fromComponent);
+            endPoints.put(fromComponent.vertices.peekFirst(), fromComponent);
+            endPoints.put(fromComponent.vertices.peekLast(), fromComponent);
           } else if (t1 == segment.from && f2 == segment.to) {
             toComponent.vertices.addAll(fromComponent.vertices);
-            endPoints.put(f1, toComponent);
-            endPoints.put(t2, toComponent);
+            endPoints.put(toComponent.vertices.peekFirst(), toComponent);
+            endPoints.put(toComponent.vertices.peekLast(), toComponent);
           } else if (t2 == segment.from && f1 == segment.to) {
             toComponent.vertices.addAll(fromComponent.vertices);
-            endPoints.put(f2, toComponent);
-            endPoints.put(t1, toComponent);
+            endPoints.put(toComponent.vertices.peekFirst(), toComponent);
+            endPoints.put(toComponent.vertices.peekLast(), toComponent);
           } else if (f1 == segment.from && t2 == segment.to) {
-            fromComponent.vertices.addAll(toComponent.vertices);
-            endPoints.put(f2, fromComponent);
-            endPoints.put(t1, fromComponent);
+            toComponent.vertices.addAll(fromComponent.vertices);
+            endPoints.put(toComponent.vertices.peekFirst(), toComponent);
+            endPoints.put(toComponent.vertices.peekLast(), toComponent);
           } else if ((t1 == segment.from && f1 == segment.to) || (f1 == segment.from && t1 == segment.to)) {
             toComponent.vertices = Lists.newLinkedList(Lists.reverse(toComponent.vertices));
             toComponent.vertices.addAll(fromComponent.vertices);
-            endPoints.put(t2, toComponent);
-            endPoints.put(f2, toComponent);
+            endPoints.put(toComponent.vertices.peekFirst(), toComponent);
+            endPoints.put(toComponent.vertices.peekLast(), toComponent);
           } else if ((f2 == segment.from && t2 == segment.to) || (t2 == segment.from && f2 == segment.to)) {
             fromComponent.vertices.addAll(Lists.reverse(toComponent.vertices));
-            endPoints.put(f1, fromComponent);
-            endPoints.put(t1, fromComponent);
+            endPoints.put(fromComponent.vertices.peekFirst(), fromComponent);
+            endPoints.put(fromComponent.vertices.peekLast(), fromComponent);
+          } else {
+            throw new IllegalStateException();
           }
         }
       }
@@ -143,6 +148,9 @@ public final class OctreeConstructionUtils {
       if (Position.dot(norm, component.vertices.get(0).normal) > 0) {
         component.vertices = Lists.newLinkedList(Lists.reverse(component.vertices));
       }
+    }
+    if (endPoints.size() > 0) {
+      log.warning("no component for " + endPoints.size() + " endpoints, generated " + components.size() + " components");
     }
     return components;
   }
