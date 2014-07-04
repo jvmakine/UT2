@@ -3,7 +3,6 @@ package fi.haju.ut2.voxels.octree.utils;
 import static fi.haju.ut2.voxels.octree.VoxelEdge.edge;
 import static fi.haju.ut2.voxels.octree.VoxelFace.face;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

@@ -26,7 +26,7 @@ public class VoxelOctreeTest {
     assertCorrectlyConnected(tree.children[7]);
   }
   
-  @Test public void neighbours_setup_correctly_between_children() {
+  @Test public void neighbours_connected_correctly_between_children() {
     VoxelOctree tree = createOctree();
     tree.divideAllToLevel(3);
     VoxelOctree cell = tree.children[0].children[0];

@@ -6,6 +6,7 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.voxels.functions.Function3d;
 import static fi.haju.ut2.voxels.octree.VoxelNode.node;
 import static fi.haju.ut2.geometry.Position.average;
@@ -106,10 +107,15 @@ public class VoxelFace {
   }
 
   private List<FaceSegment> solveAmbiguitySegment() {
-    // TODO proper hadling
     List<FaceSegment> result = Lists.newArrayList();
-    /*result.addAll(segment(edges[0], edges[1]));
-    result.addAll(segment(edges[2], edges[3]));*/
+    // if normals differ too much, they are supposed to reside on different surfaces
+    if (Position.difference(edges[0].vertex().normal, edges[1].vertex().normal) > 2) {
+      result.addAll(segment(edges[3], edges[0]));
+      result.addAll(segment(edges[1], edges[2])); 
+    } else {
+      result.addAll(segment(edges[0], edges[1]));
+      result.addAll(segment(edges[2], edges[3]));
+    }
     return result;
   }
 
