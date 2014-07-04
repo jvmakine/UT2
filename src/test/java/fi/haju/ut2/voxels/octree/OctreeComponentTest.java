@@ -18,22 +18,32 @@ import static org.hamcrest.Matchers.is;
 public class OctreeComponentTest {
 
   @Test public void loop_is_constructed_as_single_component() {
-    Set<FaceSegment> loop = createLoop(50);
+    Set<FaceSegment> loop = createLoop(10, 0);
     List<OctreeComponent> components = OctreeConstructionUtils.createComponentsFromSegments(loop);
     assertThat(components.size(), is(1));
-    assertThat(components.get(0).vertices.size(), is(50));
+    assertThat(components.get(0).vertices.size(), is(10));
+  }
+  
+  @Test public void two_loops_are_constructed_as_separate_components() {
+    Set<FaceSegment> segments = createLoop(5, 0);
+    segments.addAll(createLoop(5, 10));
+    
+    List<OctreeComponent> components = OctreeConstructionUtils.createComponentsFromSegments(segments);
+    assertThat(components.size(), is(2));
+    assertThat(components.get(0).vertices.size(), is(5));
+    assertThat(components.get(1).vertices.size(), is(5));
   }
 
-  private Set<FaceSegment> createLoop(int length) {
+  private Set<FaceSegment> createLoop(int length, int start) {
     Set<FaceSegment> result = Sets.newHashSet();
-    Position start = pos(0,0,0);
-    Position last = start;
+    Position startpos = pos(start,start,start);
+    Position last = startpos;
     for(int i = 1; i <length; ++i) {
-      Position p = pos(i,i,i);
+      Position p = pos(i + start,i + start,i + start);
       result.add(new FaceSegment(last, p));
       last = p;
     }
-    result.add(new FaceSegment(last, start));
+    result.add(new FaceSegment(last, startpos));
     return result;
   }
   
