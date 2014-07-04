@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
-import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.voxels.octree.utils.OctreeConstructionUtils;
 
 import static fi.haju.ut2.geometry.Position.pos;

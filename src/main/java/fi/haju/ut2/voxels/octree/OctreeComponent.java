@@ -4,8 +4,6 @@ import java.util.LinkedList;
 
 import com.google.common.collect.Lists;
 
-import fi.haju.ut2.geometry.Position;
-
 public class OctreeComponent {
   public LinkedList<PositionWithNormal> vertices = Lists.newLinkedList();
 }

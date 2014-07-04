@@ -78,5 +78,21 @@ public final class Position {
   public Position inverse() {
     return pos(-x, -y, -z);
   }
+  
+  public static double dot(Position p1, Position p2) {
+    return p1.x * p2.x + p1.y*p2.y + p1.z*p2.z;
+  }
+  
+  public static Position cross(Position p1, Position p2) {
+    return pos(
+      p1.y*p2.z - p1.z*p2.y,
+      p1.z*p2.x - p1.x*p2.z,
+      p1.x*p2.y - p1.y*p2.x
+    );
+  }
+
+  public static Position substract(Position p1, Position p2) {
+    return pos(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z);
+  }
 
 }

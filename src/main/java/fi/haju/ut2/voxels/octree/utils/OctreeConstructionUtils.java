@@ -3,6 +3,7 @@ package fi.haju.ut2.voxels.octree.utils;
 import static fi.haju.ut2.voxels.octree.VoxelEdge.edge;
 import static fi.haju.ut2.voxels.octree.VoxelFace.face;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -134,6 +135,14 @@ public final class OctreeConstructionUtils {
             endPoints.put(t1, fromComponent);
           }
         }
+      }
+    }
+    for(OctreeComponent component : components) {
+      Position p1 = Position.substract(component.vertices.get(0).position, component.vertices.get(1).position);
+      Position p2 = Position.substract(component.vertices.get(2).position, component.vertices.get(1).position);
+      Position norm = Position.cross(p1, p2);
+      if (Position.dot(norm, component.vertices.get(0).normal) > 0) {
+        component.vertices = Lists.newLinkedList(Lists.reverse(component.vertices));
       }
     }
     return components;
