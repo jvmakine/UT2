@@ -22,21 +22,26 @@ public class VoxelEdge {
     this.minus = from;
     this.plus = to;
     if(from.positive != to.positive) {
-      boolean frompos = from.positive;
-      Position fromv = from.position;
-      Position tov = to.position;
-      vertex = Position.average(from.position, to.position);
-      for(int i = 0; i < INTERSECTION_ACCURACY; ++i) {
-        boolean pos = function.value(vertex.x, vertex.y, vertex.z) >= 0;
-        if (pos != frompos) {
-          tov = vertex;
-        } else {
-          fromv = vertex;
-          frompos = pos;
-        }
-        vertex = Position.average(fromv, tov);
-      }
+      vertex = interpolateVertex(from, to, function);
     }
+  }
+
+  private static Position interpolateVertex(VoxelNode from, VoxelNode to, Function3d function) {
+    boolean frompos = from.positive;
+    Position fromv = from.position;
+    Position tov = to.position;
+    Position vertex = Position.average(from.position, to.position);
+    for(int i = 0; i < INTERSECTION_ACCURACY; ++i) {
+      boolean pos = function.value(vertex.x, vertex.y, vertex.z) >= 0;
+      if (pos != frompos) {
+        tov = vertex;
+      } else {
+        fromv = vertex;
+        frompos = pos;
+      }
+      vertex = Position.average(fromv, tov);
+    }
+    return vertex;
   }
   
   public static VoxelEdge edge(VoxelNode from, VoxelNode to, Function3d function) {

@@ -25,6 +25,26 @@ public class VoxelOctreeTest {
     assertCorrectlyConnected(tree.children[6]);
     assertCorrectlyConnected(tree.children[7]);
   }
+  
+  @Test public void neighbours_setup_correctly_between_children() {
+    VoxelOctree tree = createOctree();
+    tree.divideAllToLevel(3);
+    VoxelOctree cell = tree.children[0].children[0];
+    assertThat(cell.down(), is(tree.children[0].children[4]));
+    assertThat(cell.east(), is(tree.children[0].children[1]));
+    assertThat(cell.south(), is(tree.children[0].children[3]));
+    cell = tree.children[0].children[6];
+    assertThat(cell.up(), is(tree.children[0].children[2]));
+    assertThat(cell.north(), is(tree.children[0].children[5]));
+    assertThat(cell.west(), is(tree.children[0].children[7]));
+  }
+  
+  @Test public void neighbour_loop_returns_to_itself() {
+    VoxelOctree tree = createOctree();
+    tree.divideAllToLevel(3);
+    VoxelOctree cell = tree.children[0].children[0];
+    assertThat(cell.down().east().up().west(), is(cell));
+  }
     
   private void assertCorrectlyConnected(VoxelOctree tree) {
     assertFaceCorrectlyConnected(tree.faces[0]);

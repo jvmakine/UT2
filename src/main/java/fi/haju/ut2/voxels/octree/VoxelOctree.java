@@ -3,6 +3,7 @@ package fi.haju.ut2.voxels.octree;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import fi.haju.ut2.geometry.Position;
@@ -18,7 +19,6 @@ public final class VoxelOctree {
   public VoxelFace[] faces = new VoxelFace[6];
   public VoxelOctree[] children;
   public VoxelNode dividor;
-  public VoxelOctree[] neighbours = new VoxelOctree[6];
   public VoxelOctree parent;
   public Position vertexPosition = null;
   public Function3d function;
@@ -31,6 +31,7 @@ public final class VoxelOctree {
     this.function = function;
     depth = 0;
     faces = OctreeConstructionUtils.createInitialFaces(upperLeftBackCorner, side, function);
+    setupFaces();
     calculateComponents();
   }
   
@@ -46,6 +47,15 @@ public final class VoxelOctree {
     }
   }
   
+  public void setupFaces() {
+    faces[0].plus = this;
+    faces[1].plus = this;
+    faces[2].plus = this;
+    faces[3].minus = this;
+    faces[4].minus = this;
+    faces[5].minus = this;
+  }
+  
   public void divide() {
     if (children != null) return;
     divideNeighboursWithLesserDepth();
@@ -57,10 +67,10 @@ public final class VoxelOctree {
       children[i].depth = depth + 1;
       children[i].parent = this;
       children[i].function = function;
+      children[i].setupFaces();
     }
-    OctreeConstructionUtils.setupChildNeighbours(children, neighbours);
-    for(int i = 0; i < 6; ++i) {
-      if(neighbours[i] != null) neighbours[i].calculateComponents();
+    for (VoxelOctree n : neighbours()) {
+      if(n != null) n.calculateComponents();
     }
     calculateComponents();
   }
@@ -76,11 +86,10 @@ public final class VoxelOctree {
         children[i].calculateComponents();
       }
     }
-      
   }
 
   private void divideNeighboursWithLesserDepth() {
-    for (VoxelOctree n : neighbours) {
+    for (VoxelOctree n : neighbours()) {
       if (n != null) {
         if (n.depth < depth) {
           n.divide();
@@ -106,11 +115,22 @@ public final class VoxelOctree {
     return result;
   }
   
-  public VoxelOctree up() { return neighbours[0]; }
-  public VoxelOctree west() { return neighbours[1]; }
-  public VoxelOctree north() { return neighbours[2]; }
-  public VoxelOctree east() { return neighbours[3]; }
-  public VoxelOctree south() { return neighbours[4]; }
-  public VoxelOctree down() { return neighbours[5]; }
+  public List<VoxelOctree> neighbours() {
+    return Lists.newArrayList(
+        faces[0].minus(),
+        faces[1].minus(),
+        faces[2].minus(),
+        faces[3].plus(),
+        faces[4].plus(),
+        faces[5].plus()
+    );
+  }
+  
+  public VoxelOctree up() { return faces[0].minus(); }
+  public VoxelOctree west() { return faces[1].minus(); }
+  public VoxelOctree north() { return faces[2].minus(); }
+  public VoxelOctree east() { return faces[3].plus(); }
+  public VoxelOctree south() { return faces[4].plus(); }
+  public VoxelOctree down() { return faces[5].plus(); }
   
 }

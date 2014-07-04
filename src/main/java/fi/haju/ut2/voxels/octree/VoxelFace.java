@@ -14,9 +14,11 @@ import static fi.haju.ut2.voxels.octree.VoxelEdge.edge;
 public class VoxelFace {
   
   public VoxelNode dividor = null;
-  public VoxelFace[] children; // 0 == --, 1 = -+, 2 = +-, 3 = ++
+  public VoxelFace[] children; // 0 = --, 1 = -+, 2 = +-, 3 = ++
   public VoxelFace parent = null;
   public VoxelEdge[] edges = new VoxelEdge[4];
+  public VoxelOctree plus;
+  public VoxelOctree minus;
   public List<FaceSegment> faceSegments;
   
   public VoxelFace() {}
@@ -35,6 +37,18 @@ public class VoxelFace {
   
   public final boolean hasChildren() {
     return dividor != null;
+  }
+  
+  public final VoxelOctree plus() {
+    if (plus != null) return plus;
+    if (parent != null) return parent.plus();
+    return null;
+  }
+  
+  public final VoxelOctree minus() {
+    if (minus != null) return minus;
+    if (parent != null) return parent.minus();
+    return null;
   }
   
   public final void divide(Function3d function) {
