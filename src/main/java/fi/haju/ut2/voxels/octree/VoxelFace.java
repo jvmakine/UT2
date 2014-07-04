@@ -19,7 +19,6 @@ public class VoxelFace {
   public VoxelEdge[] edges = new VoxelEdge[4];
   public VoxelOctree plus;
   public VoxelOctree minus;
-  public List<FaceSegment> faceSegments;
   
   public VoxelFace() {}
   
@@ -65,7 +64,7 @@ public class VoxelFace {
     for(VoxelFace face : children) {
       face.parent = this;
     }
-    // recalculate face segments as the vertices may have moved
+    // recalculate face segments as the vertices may have moved to more accurate positions
     recalculateFaceSegementsForParents();
   }
   
@@ -75,10 +74,11 @@ public class VoxelFace {
   }
   
   public void calculateFaceSegements() {
-    faceSegments = getFaceSegements();
+    if (plus != null) plus.calculateComponents();
+    if (minus != null) minus.calculateComponents();
   }
   
-  public List<FaceSegment> getFaceSegements() {
+  private List<FaceSegment> getFaceSegements() {
     int index = calculateConnectionIndex();
     switch(index) {
     // No segments
@@ -108,13 +108,13 @@ public class VoxelFace {
   private List<FaceSegment> solveAmbiguitySegment() {
     // TODO proper hadling
     List<FaceSegment> result = Lists.newArrayList();
-    result.addAll(segment(edges[0], edges[1]));
-    result.addAll(segment(edges[2], edges[3]));
+    /*result.addAll(segment(edges[0], edges[1]));
+    result.addAll(segment(edges[2], edges[3]));*/
     return result;
   }
 
   private final List<FaceSegment> segment(VoxelEdge e1, VoxelEdge e2) {
-    return Lists.newArrayList(new FaceSegment(e1.vertex, e2.vertex));
+    return Lists.newArrayList(new FaceSegment(e1.vertex(), e2.vertex()));
   }
 
   private final int calculateConnectionIndex() {
@@ -154,7 +154,7 @@ public class VoxelFace {
   public Set<FaceSegment> getSegments() {
     Set<FaceSegment> result = Sets.newHashSet();
     if (!hasChildren()) {
-      result.addAll(faceSegments);
+      result.addAll(getFaceSegements());
     } else {
       for(int i = 0; i < 4; ++i) result.addAll(children[i].getSegments());
     }

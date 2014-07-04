@@ -16,7 +16,7 @@ public class VoxelEdge {
   public VoxelEdge minusChild;
   public VoxelEdge plusChild;
   public VoxelNode dividor = null;
-  public Position vertex;
+  private Position vertex;
   
   public VoxelEdge(VoxelNode from, VoxelNode to, Function3d function) {
     this.minus = from;
@@ -44,6 +44,16 @@ public class VoxelEdge {
     return vertex;
   }
   
+  public Position vertex() {
+    if(hasChild()) {
+      Position mv = minusChild.vertex();
+      Position pv = plusChild.vertex();
+      return mv == null ? pv : mv;
+    } else {
+      return vertex;
+    }
+  }
+  
   public static VoxelEdge edge(VoxelNode from, VoxelNode to, Function3d function) {
     return new VoxelEdge(from, to, function);
   }
@@ -59,14 +69,6 @@ public class VoxelEdge {
     plusChild = edge(dividor, plus, function);
     minusChild.parent = this;
     plusChild.parent = this;
-    updateParentVertex();
-  }
-
-  private void updateParentVertex() {
-    if (minusChild.vertex != null) vertex = minusChild.vertex;
-    else if (plusChild.vertex != null) vertex = plusChild.vertex;
-    else vertex = null;
-    if (parent != null) parent.updateParentVertex();
   }
   
 }

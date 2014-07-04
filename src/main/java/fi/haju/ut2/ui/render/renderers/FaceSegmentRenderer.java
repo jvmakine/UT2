@@ -40,12 +40,11 @@ public class FaceSegmentRenderer {
     tbp.add(root);
     while (!tbp.isEmpty()) {
       VoxelOctree octree = tbp.remove();
-      for (VoxelFace face : octree.faces) {
-        if (!face.hasChildren()) {
-          segments.addAll(face.faceSegments);
+      if (octree.children == null) {
+        for (VoxelFace face : octree.faces) {
+          segments.addAll(face.getSegments());
         }
       }
-      
       if (octree.children != null) {
         for(VoxelOctree child : octree.children) {
           if (child != null) {

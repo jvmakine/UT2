@@ -69,10 +69,6 @@ public final class VoxelOctree {
       children[i].function = function;
       children[i].setupFaces();
     }
-    for (VoxelOctree n : neighbours()) {
-      if(n != null) n.calculateComponents();
-    }
-    calculateComponents();
   }
   
   public void calculateComponents() {

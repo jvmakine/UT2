@@ -35,8 +35,8 @@ public class OctreeVertexRenderer {
   
   public void render(VoxelOctree root) {
     for(VoxelEdge edge : root.edges()) {      
-      if (edge.dividor ==  null && edge.vertex != null) {
-        sphere(edge.vertex, 0.2f);
+      if (edge.dividor ==  null && edge.vertex() != null) {
+        sphere(edge.vertex(), 0.2f);
       }
     }
   }
