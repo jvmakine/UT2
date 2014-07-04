@@ -1,5 +1,9 @@
 package fi.haju.ut2.ui;
 
+import java.util.Set;
+
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -28,6 +32,36 @@ public final class MeshUtils {
     m.setMode(Mesh.Mode.Lines);
     m.setBuffer(VertexBuffer.Type.Position, 3, new float[]{ (float)p1.x, (float)p1.y, (float)p1.z, (float)p2.x, (float)p2.y, (float)p2.z});
     m.setBuffer(VertexBuffer.Type.Index, 2, new short[]{ 0, 1 });
+    m.updateBound();
+    Geometry line = new Geometry("Line", m);
+    Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+    mat.setBoolean("UseMaterialColors", true);
+    mat.setColor("Ambient", color);
+    mat.setColor("Diffuse", color);
+    line.setMaterial(mat);
+    return line;
+  }
+  
+  public static Geometry lines(Set<Pair<Position, Position>> endpoints, ColorRGBA color, AssetManager assetManager) {
+    Mesh m = new Mesh();
+    m.setMode(Mesh.Mode.Lines);
+    float[] posData = new float[endpoints.size()*6];
+    short[] indexData = new short[endpoints.size()*2];
+    int i = 0;
+    for (Pair<Position, Position> p : endpoints) {
+      posData[i] = (float)p.getLeft().x;
+      posData[i+1] = (float)p.getLeft().y;
+      posData[i+2] = (float)p.getLeft().z;
+      posData[i+3] = (float)p.getRight().x;
+      posData[i+4] = (float)p.getRight().y;
+      posData[i+5] = (float)p.getRight().z;
+      i += 6;
+    }
+    for (i = 0; i < endpoints.size()*2; ++i) {
+      indexData[i] = (short)i;
+    }
+    m.setBuffer(VertexBuffer.Type.Position, 3, posData);
+    m.setBuffer(VertexBuffer.Type.Index, 2, indexData);
     m.updateBound();
     Geometry line = new Geometry("Line", m);
     Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");

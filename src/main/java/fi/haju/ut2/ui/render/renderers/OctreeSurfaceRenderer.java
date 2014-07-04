@@ -3,6 +3,7 @@ package fi.haju.ut2.ui.render.renderers;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 
@@ -25,6 +26,7 @@ import fi.haju.ut2.voxels.octree.VoxelOctree;
 @Singleton
 public class OctreeSurfaceRenderer {
   
+  private Logger log = Logger.getLogger(this.getClass().getName());
   private Node rootNode;
   private AssetManager assetManager;
   
@@ -34,6 +36,7 @@ public class OctreeSurfaceRenderer {
   }
     
   public void render(VoxelOctree root) {
+    log.info("starting octree mesh construction");
     Set<OctreeComponent> components = Sets.newHashSet();
     Queue<VoxelOctree> tbp = Queues.newArrayDeque();
     tbp.add(root);
@@ -93,6 +96,7 @@ public class OctreeSurfaceRenderer {
       surface.setMaterial(mat);
       rootNode.attachChild(surface);
     }
+    log.info("octree mesh construction done");
   }
 
 }

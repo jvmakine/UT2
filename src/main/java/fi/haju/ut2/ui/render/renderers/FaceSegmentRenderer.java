@@ -5,6 +5,8 @@ import java.util.Set;
 
 import javax.inject.Singleton;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.jme3.asset.AssetManager;
@@ -27,11 +29,6 @@ public class FaceSegmentRenderer {
   public void setup(Node rootNode, AssetManager assetManager) {
     this.rootNode = rootNode;
     this.assetManager = assetManager;
-  }
-  
-  private void line(Position p1, Position p2) {
-    Geometry line = MeshUtils.line(p1, p2, new ColorRGBA(1.0f, 0.7f, 0.7f, 1.0f), assetManager);
-    rootNode.attachChild(line);
   }
   
   public void render(VoxelOctree root) {
@@ -57,8 +54,11 @@ public class FaceSegmentRenderer {
   }
 
   private void drawSegments(Set<FaceSegment> segments) {
+    Set<Pair<Position, Position>> endpoints = Sets.newHashSet();
     for (FaceSegment edge : segments) {
-      line(edge.from.position, edge.to.position);
+      endpoints.add(Pair.of(edge.from.position, edge.to.position));
     }
+    Geometry lines = MeshUtils.lines(endpoints, new ColorRGBA(1.0f, 0.7f, 0.7f, 1.0f), assetManager);
+    rootNode.attachChild(lines);
   }  
 }
