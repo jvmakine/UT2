@@ -19,6 +19,7 @@ import com.jme3.scene.VertexBuffer;
 
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.voxels.octree.OctreeComponent;
+import fi.haju.ut2.voxels.octree.PositionWithNormal;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 
 @Singleton
@@ -49,21 +50,40 @@ public class OctreeSurfaceRenderer {
       }
     }
     for(OctreeComponent component : components) {
-      Position center = Position.average(component.vertices);
+      List<Position> positions = Lists.newArrayList();
+      List<Position> normals = Lists.newArrayList();
+      for(PositionWithNormal p : component.vertices) {
+        positions.add(p.position);
+        normals.add(p.normal);
+      }
+      Position center = Position.average(positions);
+      Position centerNorm = Position.average(normals).normalize();
       Mesh m = new Mesh();
       List<Position> points = Lists.newArrayList();
+      List<Position> norms = Lists.newArrayList();
       points.add(center);
-      points.addAll(component.vertices);
-      points.add(component.vertices.peekFirst());
-      float[] data = new float[3*points.size()];
+      points.addAll(positions);
+      points.add(component.vertices.peekFirst().position);
+      norms.add(centerNorm);
+      norms.addAll(normals);
+      norms.add(component.vertices.peekFirst().normal);
+      float[] positionData = new float[3*points.size()];
+      float[] normalData = new float[3*points.size()];
       int i = 0;
       for(Position p : points) {
-        data[i++] = (float)p.x;
-        data[i++] = (float)p.y;
-        data[i++] = (float)p.z;
+        positionData[i++] = (float)p.x;
+        positionData[i++] = (float)p.y;
+        positionData[i++] = (float)p.z;
+      }
+      i = 0;
+      for(Position p : norms) {
+        normalData[i++] = (float)p.x;
+        normalData[i++] = (float)p.y;
+        normalData[i++] = (float)p.z;
       }
       m.setMode(Mesh.Mode.TriangleFan);
-      m.setBuffer(VertexBuffer.Type.Position, 3, data);
+      m.setBuffer(VertexBuffer.Type.Position, 3, positionData);
+      m.setBuffer(VertexBuffer.Type.Normal, 3, normalData);
       Geometry surface = new Geometry("surface", m);
       Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
       mat.setBoolean("UseMaterialColors", true);

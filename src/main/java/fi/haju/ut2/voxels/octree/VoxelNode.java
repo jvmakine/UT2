@@ -5,6 +5,7 @@ import fi.haju.ut2.voxels.functions.Function3d;
 
 public final class VoxelNode {
     public Position position;
+    public Position normal;
     public boolean positive = false;
     
     public VoxelNode(Position pos, boolean positive) {

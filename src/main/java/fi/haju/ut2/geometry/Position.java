@@ -70,4 +70,13 @@ public final class Position {
     return "pos[" + x + ", " + y + ", " + z + "]";
   }
 
+  public Position normalize() {
+    double l = x*x + y*y + z*z;
+    return pos(x/l, y/l, z/l);
+  }
+
+  public Position inverse() {
+    return pos(-x, -y, -z);
+  }
+
 }

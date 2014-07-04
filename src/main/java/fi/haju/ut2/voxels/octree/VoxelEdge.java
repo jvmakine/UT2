@@ -16,13 +16,15 @@ public class VoxelEdge {
   public VoxelEdge minusChild;
   public VoxelEdge plusChild;
   public VoxelNode dividor = null;
-  private Position vertex;
+  
+  private PositionWithNormal vertex;
   
   public VoxelEdge(VoxelNode from, VoxelNode to, Function3d function) {
     this.minus = from;
     this.plus = to;
     if(from.positive != to.positive) {
-      vertex = interpolateVertex(from, to, function);
+      Position pos = interpolateVertex(from, to, function); 
+      vertex = new PositionWithNormal(pos, function.gradient(pos.x, pos.y, pos.z).inverse());
     }
   }
 
@@ -44,15 +46,16 @@ public class VoxelEdge {
     return vertex;
   }
   
-  public Position vertex() {
+  public PositionWithNormal vertex() {
     if(hasChild()) {
-      Position mv = minusChild.vertex();
-      Position pv = plusChild.vertex();
+      PositionWithNormal mv = minusChild.vertex();
+      PositionWithNormal pv = plusChild.vertex();
       return mv == null ? pv : mv;
     } else {
       return vertex;
     }
   }
+  
   
   public static VoxelEdge edge(VoxelNode from, VoxelNode to, Function3d function) {
     return new VoxelEdge(from, to, function);

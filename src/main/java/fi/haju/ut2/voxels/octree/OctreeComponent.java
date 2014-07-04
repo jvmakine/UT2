@@ -7,5 +7,5 @@ import com.google.common.collect.Lists;
 import fi.haju.ut2.geometry.Position;
 
 public class OctreeComponent {
-  public LinkedList<Position> vertices = Lists.newLinkedList();
+  public LinkedList<PositionWithNormal> vertices = Lists.newLinkedList();
 }

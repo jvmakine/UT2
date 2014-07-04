@@ -14,6 +14,7 @@ import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.voxels.functions.Function3d;
 import fi.haju.ut2.voxels.octree.FaceSegment;
 import fi.haju.ut2.voxels.octree.OctreeComponent;
+import fi.haju.ut2.voxels.octree.PositionWithNormal;
 import fi.haju.ut2.voxels.octree.VoxelEdge;
 import fi.haju.ut2.voxels.octree.VoxelFace;
 import fi.haju.ut2.voxels.octree.VoxelNode;
@@ -57,7 +58,7 @@ public final class OctreeConstructionUtils {
   }
   
   public static List<OctreeComponent> createComponentsFromSegments(Set<FaceSegment> segments) {
-    Map<Position, OctreeComponent> endPoints = Maps.newHashMap();
+    Map<PositionWithNormal, OctreeComponent> endPoints = Maps.newHashMap();
     List<OctreeComponent> components = Lists.newArrayList(); 
     for (FaceSegment segment : segments) {
       if (!endPoints.containsKey(segment.from) && !endPoints.containsKey(segment.to)) {
@@ -98,10 +99,10 @@ public final class OctreeConstructionUtils {
           components.add(fromComponent);
         } else {
           // Component connection
-          Position f1 = fromComponent.vertices.peekFirst();
-          Position f2 = fromComponent.vertices.peekLast();
-          Position t1 = toComponent.vertices.peekFirst();
-          Position t2 = toComponent.vertices.peekLast();
+          PositionWithNormal f1 = fromComponent.vertices.peekFirst();
+          PositionWithNormal f2 = fromComponent.vertices.peekLast();
+          PositionWithNormal t1 = toComponent.vertices.peekFirst();
+          PositionWithNormal t2 = toComponent.vertices.peekLast();
           endPoints.remove(f1);
           endPoints.remove(f2);
           endPoints.remove(t1);

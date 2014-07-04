@@ -36,10 +36,10 @@ public class OctreeComponentTest {
 
   private Set<FaceSegment> createLoop(int length, int start) {
     Set<FaceSegment> result = Sets.newHashSet();
-    Position startpos = pos(start,start,start);
-    Position last = startpos;
+    PositionWithNormal startpos = new PositionWithNormal(pos(start,start,start), pos(1,0,0));
+    PositionWithNormal last = startpos;
     for(int i = 1; i <length; ++i) {
-      Position p = pos(i + start,i + start,i + start);
+      PositionWithNormal p = new PositionWithNormal(pos(i + start,i + start,i + start), pos(1,0,0));
       result.add(new FaceSegment(last, p));
       last = p;
     }

@@ -15,6 +15,7 @@ import com.jme3.scene.Node;
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.ui.MeshUtils;
 import fi.haju.ut2.voxels.octree.OctreeComponent;
+import fi.haju.ut2.voxels.octree.PositionWithNormal;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 
 @Singleton
@@ -55,9 +56,9 @@ public class OctreeComponentRenderer {
   private void drawComponents(Set<OctreeComponent> components) {
     for (OctreeComponent component : components) {
       ColorRGBA color = new ColorRGBA((float)Math.random(), (float)Math.random(), (float)Math.random(), (float)1.0);
-      Position last = component.vertices.peekLast();
-      for (Position p : component.vertices) {
-        line(last, p, color);
+      PositionWithNormal last = component.vertices.peekLast();
+      for (PositionWithNormal p : component.vertices) {
+        line(last.position, p.position, color);
         last = p;
       }
     }

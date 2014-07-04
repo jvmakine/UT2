@@ -58,7 +58,7 @@ public class FaceSegmentRenderer {
 
   private void drawSegments(Set<FaceSegment> segments) {
     for (FaceSegment edge : segments) {
-      line(edge.from, edge.to);
+      line(edge.from.position, edge.to.position);
     }
   }  
 }
