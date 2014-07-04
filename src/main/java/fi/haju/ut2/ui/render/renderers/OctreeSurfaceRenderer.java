@@ -84,6 +84,7 @@ public class OctreeSurfaceRenderer {
       m.setMode(Mesh.Mode.TriangleFan);
       m.setBuffer(VertexBuffer.Type.Position, 3, positionData);
       m.setBuffer(VertexBuffer.Type.Normal, 3, normalData);
+      m.updateBound();
       Geometry surface = new Geometry("surface", m);
       Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
       mat.setBoolean("UseMaterialColors", true);

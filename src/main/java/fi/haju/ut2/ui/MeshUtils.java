@@ -28,6 +28,7 @@ public final class MeshUtils {
     m.setMode(Mesh.Mode.Lines);
     m.setBuffer(VertexBuffer.Type.Position, 3, new float[]{ (float)p1.x, (float)p1.y, (float)p1.z, (float)p2.x, (float)p2.y, (float)p2.z});
     m.setBuffer(VertexBuffer.Type.Index, 2, new short[]{ 0, 1 });
+    m.updateBound();
     Geometry line = new Geometry("Line", m);
     Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
     mat.setBoolean("UseMaterialColors", true);
