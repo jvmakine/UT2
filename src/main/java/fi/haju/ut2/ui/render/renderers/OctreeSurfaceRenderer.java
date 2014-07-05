@@ -59,15 +59,13 @@ public class OctreeSurfaceRenderer {
         positions.add(p.position);
         normals.add(p.normal);
       }
-      Position center = Position.average(positions);
-      Position centerNorm = Position.average(normals).normalize();
       Mesh m = new Mesh();
       List<Position> points = Lists.newArrayList();
       List<Position> norms = Lists.newArrayList();
-      points.add(center);
+      points.add(component.centralPoint.position);
       points.addAll(positions);
       points.add(component.vertices.peekFirst().position);
-      norms.add(centerNorm);
+      norms.add(component.centralPoint.normal);
       norms.addAll(normals);
       norms.add(component.vertices.peekFirst().normal);
       float[] positionData = new float[3*points.size()];

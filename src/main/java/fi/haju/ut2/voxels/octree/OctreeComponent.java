@@ -8,7 +8,8 @@ import com.google.common.collect.Lists;
 
 public class OctreeComponent {
   public LinkedList<PositionWithNormal> vertices = Lists.newLinkedList();
-
+  public PositionWithNormal centralPoint;
+  
   @Override
   public String toString() {
     return "component [" + StringUtils.join(vertices, ",") + "]";
