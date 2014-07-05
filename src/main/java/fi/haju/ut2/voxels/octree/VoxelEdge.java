@@ -24,7 +24,7 @@ public class VoxelEdge {
     this.plus = to;
     if(from.positive != to.positive) {
       Position pos = interpolateVertex(from, to, function); 
-      vertex = new PositionWithNormal(pos, function.gradient(pos.x, pos.y, pos.z).inverse());
+      vertex = new PositionWithNormal(pos, function.gradient(pos.x, pos.y, pos.z).normalize().inverse());
     }
   }
 

@@ -46,7 +46,7 @@ public class Game extends SimpleApplication {
     faceSegmentRenderer.render(octree);
     //octreeComponentRenderer.render(octree);
     octreeSurfaceRenderer.render(octree);
-    octreeVertexNormalRenderer.render(octree);
+    //octreeVertexNormalRenderer.render(octree);
   }
 
 }

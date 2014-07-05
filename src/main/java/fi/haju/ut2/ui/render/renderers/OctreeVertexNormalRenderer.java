@@ -32,7 +32,7 @@ public class OctreeVertexNormalRenderer {
     Set<Pair<Position, Position>> endpoints = Sets.newHashSet();
     for(VoxelEdge edge : root.edges()) {      
       if (edge.dividor ==  null && edge.vertex() != null) {
-        endpoints.add(Pair.of(edge.vertex().position, edge.vertex().position.add(edge.vertex().normal.div(10.0))));
+        endpoints.add(Pair.of(edge.vertex().position, edge.vertex().position.add(edge.vertex().normal.div(5.0))));
       }
     }
     rootNode.attachChild(MeshUtils.lines(endpoints, new ColorRGBA(1,0,0,1), assetManager));

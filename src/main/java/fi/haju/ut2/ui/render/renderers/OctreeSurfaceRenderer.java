@@ -37,21 +37,7 @@ public class OctreeSurfaceRenderer {
     
   public void render(VoxelOctree root) {
     log.info("starting octree mesh construction");
-    Set<OctreeComponent> components = Sets.newHashSet();
-    Queue<VoxelOctree> tbp = Queues.newArrayDeque();
-    tbp.add(root);
-    while (!tbp.isEmpty()) {
-      VoxelOctree octree = tbp.remove();
-      if(octree.children == null) {
-        components.addAll(octree.components);
-      } else { 
-        for(VoxelOctree child : octree.children) {
-          if (child != null) {
-            tbp.add(child);
-          }
-        }
-      }
-    }
+    Set<OctreeComponent> components = collectComponents(root);
     for(OctreeComponent component : components) {
       List<Position> positions = Lists.newArrayList();
       List<Position> normals = Lists.newArrayList();
@@ -95,6 +81,25 @@ public class OctreeSurfaceRenderer {
       rootNode.attachChild(surface);
     }
     log.info("octree mesh construction done");
+  }
+
+  private Set<OctreeComponent> collectComponents(VoxelOctree root) {
+    Set<OctreeComponent> components = Sets.newHashSet();
+    Queue<VoxelOctree> tbp = Queues.newArrayDeque();
+    tbp.add(root);
+    while (!tbp.isEmpty()) {
+      VoxelOctree octree = tbp.remove();
+      if(octree.children == null) {
+        components.addAll(octree.components);
+      } else { 
+        for(VoxelOctree child : octree.children) {
+          if (child != null) {
+            tbp.add(child);
+          }
+        }
+      }
+    }
+    return components;
   }
 
 }
