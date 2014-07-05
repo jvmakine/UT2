@@ -1,5 +1,6 @@
-package fi.haju.ut2.ui.render.renderers;
+package fi.haju.ut2.ui.render.octreegenerator;
 
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
@@ -7,12 +8,12 @@ import javax.inject.Singleton;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.jme3.asset.AssetManager;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.ui.MeshUtils;
@@ -21,17 +22,9 @@ import fi.haju.ut2.voxels.octree.VoxelFace;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 
 @Singleton
-public class FaceSegmentRenderer {
-  
-  private Node rootNode;
-  private AssetManager assetManager;
-  
-  public void setup(Node rootNode, AssetManager assetManager) {
-    this.rootNode = rootNode;
-    this.assetManager = assetManager;
-  }
-  
-  public void render(VoxelOctree root) {
+public class OctreeFaceSegmentGeometryGenerator implements OctreeGeometryGenerator {
+   
+  public List<Geometry> generate(VoxelOctree root, AssetManager assetManager) {
     Set<FaceSegment> segments = Sets.newHashSet();
     Queue<VoxelOctree> tbp = Queues.newArrayDeque();
     tbp.add(root);
@@ -50,15 +43,14 @@ public class FaceSegmentRenderer {
         }
       }
     }
-    drawSegments(segments);
+    return Lists.newArrayList(drawSegments(segments, assetManager));
   }
 
-  private void drawSegments(Set<FaceSegment> segments) {
+  private Geometry drawSegments(Set<FaceSegment> segments, AssetManager assetManager) {
     Set<Pair<Position, Position>> endpoints = Sets.newHashSet();
     for (FaceSegment edge : segments) {
       endpoints.add(Pair.of(edge.from.position, edge.to.position));
     }
-    Geometry lines = MeshUtils.lines(endpoints, new ColorRGBA(1.0f, 0.7f, 0.7f, 1.0f), assetManager);
-    rootNode.attachChild(lines);
+    return MeshUtils.lines(endpoints, new ColorRGBA(1.0f, 0.7f, 0.7f, 1.0f), assetManager);
   }  
 }
