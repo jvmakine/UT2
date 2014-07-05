@@ -32,7 +32,7 @@ public class OctreeFaceSegmentGeometryGenerator implements OctreeGeometryGenerat
       VoxelOctree octree = tbp.remove();
       if (octree.children == null) {
         for (VoxelFace face : octree.faces) {
-          segments.addAll(face.getSegments());
+          segments.addAll(face.getMostDetailedSegments());
         }
       }
       if (octree.children != null) {

@@ -1,7 +1,7 @@
 package fi.haju.ut2.ui.render;
 
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.inject.Inject;
 
@@ -20,14 +20,19 @@ public class OctreeManager {
   
   @Inject private OctreeSurfaceGeometryGenerator octreeSurfaceMeshGenerator;
   @Inject private OctreeFaceSegmentGeometryGenerator octreeFaceSegmentGeometryGenerator;
+  @Inject VoxelOctree octree;
   
   private Node rootNode;
   private AssetManager assetManager;
-  private Map<VoxelOctree, List<Geometry>> geometryMap = Maps.newHashMap();
+  private ConcurrentMap<VoxelOctree, List<Geometry>> geometryMap = Maps.newConcurrentMap();
   
   public void render(VoxelOctree octree) {
     detach(octree);
     attach(octree, generate(octree));
+  }
+  
+  public void updateFocusPosition(double x, double y, double z) {
+    
   }
 
   private void attach(VoxelOctree octree, List<Geometry> geometries) {
@@ -55,6 +60,7 @@ public class OctreeManager {
   public void setup(Node rootNode, AssetManager assetManager) {
     this.rootNode = rootNode;
     this.assetManager = assetManager;
+    render(octree);
   }
   
 }

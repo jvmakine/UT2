@@ -1,9 +1,11 @@
 package fi.haju.ut2.voxels.octree;
 
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 
 import fi.haju.ut2.geometry.Position;
@@ -79,7 +81,7 @@ public class VoxelFace {
     if (minus != null) minus.calculateComponents();
   }
   
-  private List<FaceSegment> getFaceSegements() {
+  private final List<FaceSegment> getFaceSegements() {
     int index = calculateConnectionIndex();
     switch(index) {
     // No segments
@@ -124,12 +126,10 @@ public class VoxelFace {
   }
 
   private final int calculateConnectionIndex() {
-    int index = 0;
-    index = (index << 1) + (corner30().positive ? 1 : 0); 
-    index = (index << 1) + (corner01().positive ? 1 : 0);
-    index = (index << 1) + (corner12().positive ? 1 : 0);
-    index = (index << 1) + (corner23().positive ? 1 : 0);
-    return index;
+    int index = (edges[0].minus.positive ? 1 : 0); 
+    index = (index << 1) | (edges[0].plus.positive ? 1 : 0);
+    index = (index << 1) | (edges[2].plus.positive ? 1 : 0);
+    return (index << 1) | (edges[2].minus.positive ? 1 : 0);
   }
   
   public VoxelNode corner30() {
@@ -157,12 +157,17 @@ public class VoxelFace {
     return result;
   }
 
-  public Set<FaceSegment> getSegments() {
+  public Set<FaceSegment> getMostDetailedSegments() {
     Set<FaceSegment> result = Sets.newHashSet();
-    if (!hasChildren()) {
-      result.addAll(getFaceSegements());
-    } else {
-      for(int i = 0; i < 4; ++i) result.addAll(children[i].getSegments());
+    Queue<VoxelFace> tbp = Queues.newArrayDeque();
+    tbp.add(this);
+    while(!tbp.isEmpty()) {
+      VoxelFace face = tbp.remove();
+      if (face.dividor == null) {
+        result.addAll(face.getFaceSegements());
+      } else {
+        for(int i = 0; i < 4; ++i) tbp.add(face.children[i]);
+      }
     }
     return result;
   }

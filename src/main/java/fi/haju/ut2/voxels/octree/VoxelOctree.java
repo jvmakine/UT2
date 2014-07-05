@@ -1,9 +1,11 @@
 package fi.haju.ut2.voxels.octree;
 
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 
 import fi.haju.ut2.geometry.Position;
@@ -40,13 +42,18 @@ public final class VoxelOctree {
   }
   
   public void divideAllToLevel(int level) {
-    if(depth >= level) return;
-    if (children == null) divide();
-    for(int i = 0; i < 8; ++i) {
-      children[i].divideAllToLevel(level);
+    Queue<VoxelOctree> tbp = Queues.newArrayDeque();
+    tbp.add(this);
+    while(!tbp.isEmpty()) {
+      VoxelOctree tree = tbp.remove();
+      if(tree.depth >= level) continue;
+      if (tree.children == null) tree.divide();
+      for(int i = 0; i < 8; ++i) {
+        tbp.add(tree.children[i]);
+      }
     }
   }
-  
+
   public void setupFaces() {
     faces[0].plus = this;
     faces[1].plus = this;
@@ -58,7 +65,7 @@ public final class VoxelOctree {
   
   public void divide() {
     if (children != null) return;
-    divideNeighboursWithLesserDepth();
+    //divideNeighboursWithLesserDepth();
     
     for (VoxelFace face : faces) face.divide(function);
     dividor = node(center());
@@ -74,7 +81,7 @@ public final class VoxelOctree {
   public void calculateComponents() {
     Set<FaceSegment> segments = Sets.newHashSet();
     for (VoxelFace face : faces) {
-      segments.addAll(face.getSegments());
+      segments.addAll(face.getMostDetailedSegments());
     }
     components = OctreeConstructionUtils.createComponentsFromSegments(segments);
     if (children != null) {
