@@ -15,7 +15,6 @@ public class GameModule extends AbstractModule {
   }
   
   private VoxelOctree octree() {
-    long t = System.currentTimeMillis();
     VoxelOctree result = new VoxelOctree(new Position(-8, -8, -8), 16,
         new PerlinTerrainFunction()
     );
