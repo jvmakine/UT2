@@ -5,7 +5,7 @@ import com.jme3.system.AppSettings;
 
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.voxels.functions.SphericalFunction;
-import fi.haju.ut2.voxels.functions.perlinnoise.PerlinNoiseFunction;
+import fi.haju.ut2.voxels.functions.perlinnoise.PerlinTerrainFunction;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 
 public class GameModule extends AbstractModule {
@@ -18,7 +18,7 @@ public class GameModule extends AbstractModule {
   private VoxelOctree octree() {
     VoxelOctree result = new VoxelOctree(new Position(-8, -8, -8), 16,
         //new SphericalFunction(4, new Position(0, 0, 0))
-        new PerlinNoiseFunction()
+        new PerlinTerrainFunction()
     );
     result.divideAllToLevel(5);
     /*result.divide();
