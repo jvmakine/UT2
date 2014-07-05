@@ -32,7 +32,6 @@ public class VoxelFace {
     edges[1] = e2;
     edges[2] = e3;
     edges[3] = e4;
-    calculateFaceSegements();
   }
   
   public static final VoxelFace face(VoxelEdge e1, VoxelEdge e2, VoxelEdge e3, VoxelEdge e4) {
@@ -70,25 +69,13 @@ public class VoxelFace {
     for(VoxelFace face : children) {
       face.parent = this;
     }
-    // recalculate face segments as the vertices may have moved to more accurate positions
-    recalculateFaceSegementsForParents();
   }
   
   private void clearCaches() {
     faceSegmentCache = null;
     if(parent != null) parent.clearCaches();
   }
-
-  public void recalculateFaceSegementsForParents() {
-    calculateFaceSegements();
-    if (parent != null) parent.calculateFaceSegements();  
-  }
-  
-  public void calculateFaceSegements() {
-    if (plus != null) plus.calculateComponents();
-    if (minus != null) minus.calculateComponents();
-  }
-  
+ 
   private final List<FaceSegment> getFaceSegements() {
     int index = calculateConnectionIndex();
     switch(index) {
