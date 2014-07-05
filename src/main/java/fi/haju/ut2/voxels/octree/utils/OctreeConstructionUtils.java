@@ -152,7 +152,7 @@ public final class OctreeConstructionUtils {
       }
     }
     if (endPoints.size() > 0) {
-      log.warning("no component for " + endPoints.size() + " endpoints, generated " + components.size() + " components");
+      //log.warning("no component for " + endPoints.size() + " endpoints, generated " + components.size() + " components");
     }
     return components;
   }
