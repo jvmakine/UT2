@@ -96,6 +96,10 @@ public final class Position {
     return pos(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z);
   }
   
+  public static Position add(Position p1, Position p2) {
+    return pos(p1.x + p2.x, p1.y + p2.y, p1.z + p2.z);
+  }
+  
   public static double difference(Position p1, Position p2) {
     return abs(p1.x - p2.x) + abs(p1.y - p2.y) + abs(p1.z - p2.z); 
   }

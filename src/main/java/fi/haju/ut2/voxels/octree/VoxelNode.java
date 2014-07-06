@@ -8,13 +8,14 @@ public final class VoxelNode {
     public Position normal;
     public boolean positive = false;
     
-    public VoxelNode(Position pos, boolean positive) {
+    public VoxelNode(Position pos, Function3d function) {
       position = new Position(pos.x, pos.y, pos.z);
-      this.positive = positive;
+      this.positive = function.value(pos.x, pos.y, pos.z) >= 0;
+      this.normal = function.gradient(pos.x, pos.y, pos.z);
     }
     
     public static final VoxelNode node(Position pos, Function3d function) {
-      return new VoxelNode(pos, function.value(pos.x, pos.y, pos.z) > 0);
+      return new VoxelNode(pos, function);
     }
     
 }

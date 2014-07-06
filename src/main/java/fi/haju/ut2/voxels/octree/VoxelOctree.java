@@ -65,8 +65,6 @@ public final class VoxelOctree {
   
   public void divide() {
     if (children != null) return;
-    //divideNeighboursWithLesserDepth();
-    
     for (VoxelFace face : faces) face.divide(function);
     dividor = node(center());
     children = OctreeConstructionUtils.constructChildren(dividor, faces, function);
@@ -76,6 +74,45 @@ public final class VoxelOctree {
       children[i].function = function;
       children[i].setupFaces();
     }
+    calculateComponents();
+    for(VoxelOctree n : neighbours()) {
+      if(n != null) n.calculateComponents();
+    }
+  }
+  
+  public VoxelOctree getOctreeAtPosition(Position p, int depth) {
+    if(isInside(p)) {
+      if (depth <= this.depth) return this;
+      if (children == null) {
+        divide();
+      }
+      for(int i = 0; i < 8; ++i) {
+        if (children[i].isInside(p)) return children[i].getOctreeAtPosition(p, depth);
+      }
+      throw new IllegalStateException();
+    } else {
+      if (parent != null) {
+        return parent.getOctreeAtPosition(p, depth);
+      } else {
+        int index = OctreeConstructionUtils.getParentsChildIndex(p, faces);
+        generateOctreeWithChild(this, index);
+      }
+      return null;
+    }
+  }
+
+  private void generateOctreeWithChild(VoxelOctree voxelOctree, int index) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  private final boolean isInside(Position p) {
+    return faces[0].edges[0].minus.position.y >= p.y 
+        && faces[5].edges[0].minus.position.y <= p.y
+        && faces[1].edges[0].minus.position.x >= p.x
+        && faces[3].edges[0].minus.position.x <= p.x
+        && faces[2].edges[0].minus.position.z >= p.z
+        && faces[4].edges[0].minus.position.z <= p.z;
   }
   
   public void calculateComponents() {
@@ -91,16 +128,6 @@ public final class VoxelOctree {
     }
   }
 
-  private void divideNeighboursWithLesserDepth() {
-    for (VoxelOctree n : neighbours()) {
-      if (n != null) {
-        if (n.depth < depth) {
-          n.divide();
-        }
-      }
-    }
-  }
-    
   private final VoxelNode node(Position pos) {
     return VoxelNode.node(pos, function);
   }

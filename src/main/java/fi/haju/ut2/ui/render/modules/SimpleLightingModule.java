@@ -21,7 +21,7 @@ public class SimpleLightingModule {
   
   public SimpleLightingModule() {
     directionalLight = new DirectionalLight();
-    directionalLight.setDirection(new Vector3f(1.0f, 1.0f, 1.0f).normalizeLocal());
+    directionalLight.setDirection(new Vector3f(1.0f, -1.0f, 1.0f).normalizeLocal());
     directionalLight.setColor(new ColorRGBA(1f, 1f, 1f, 1f).mult(1.0f));
     
     ambientLight = new AmbientLight();

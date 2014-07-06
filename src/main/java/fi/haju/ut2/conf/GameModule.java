@@ -19,7 +19,6 @@ public class GameModule extends AbstractModule {
         new PerlinTerrainFunction()
     );
     result.divideAllToLevel(5);
-    result.calculateComponents();
     return result;
   }
 
@@ -28,7 +27,7 @@ public class GameModule extends AbstractModule {
     settings.setVSync(true);
     settings.setAudioRenderer(null);
     settings.setFullscreen(false);
-    settings.setResolution(800, 600);
+    settings.setResolution(1800, 1000);
     return settings;
   }
 

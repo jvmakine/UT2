@@ -12,6 +12,8 @@ import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.voxels.functions.Function3d;
 import static fi.haju.ut2.voxels.octree.VoxelNode.node;
 import static fi.haju.ut2.geometry.Position.average;
+import static fi.haju.ut2.geometry.Position.add;
+import static fi.haju.ut2.geometry.Position.substract;
 import static fi.haju.ut2.voxels.octree.VoxelEdge.edge;
 
 public class VoxelFace {
@@ -40,6 +42,103 @@ public class VoxelFace {
   
   public final boolean hasChildren() {
     return dividor != null;
+  }
+  
+  public final VoxelFace generateParent(int index, Function3d function) {
+    VoxelEdge[] e = generateParentEdges(index, function);
+    VoxelEdge[] divs = generateParentDividors(index, function, e);
+    
+    VoxelFace f = new VoxelFace(e[0], e[1], e[2], e[3]);
+    f.children = new VoxelFace[4];
+    f.children[index] = this;
+    this.parent = f;
+    
+    if (index != 0) f.children[0] = face(e[0].minusChild, divs[0], divs[3], e[3].minusChild);
+    if (index != 1) f.children[1] = face(e[0].plusChild, e[1].minusChild, divs[1], divs[0]);
+    if (index != 2) f.children[2] = face(divs[1], e[1].plusChild, e[2].plusChild, divs[2]);
+    if (index != 3) f.children[3] = face(divs[3], divs[2], e[2].minusChild, e[3].plusChild);
+    
+    return f;
+  }
+  
+  private final VoxelEdge[] generateParentDividors(int index, Function3d function, VoxelEdge[] e) {
+    VoxelEdge[] div = new VoxelEdge[4];
+    if (index == 0) {
+      VoxelNode mid = edges[1].plus;
+      div[0] = edges[1];
+      div[1] = edge(mid, e[1].dividor, function);
+      div[2] = edge(mid, e[2].dividor, function);
+      div[3] = edges[2];
+    } else if (index == 1) {
+      VoxelNode mid = edges[3].plus;
+      div[0] = edges[3];
+      div[1] = edges[2];
+      div[2] = edge(mid, e[2].dividor, function);
+      div[3] = edge(e[3].dividor, mid, function);
+    } else if (index == 2) {
+      VoxelNode mid = edges[3].minus;
+      div[0] = edge(e[0].dividor, mid, function);
+      div[1] = edges[0];
+      div[2] = edges[3];
+      div[3] = edge(e[3].dividor, mid, function);
+    } else if (index == 3) {
+      VoxelNode mid = edges[1].minus;
+      div[0] = edge(e[0].dividor, mid, function);
+      div[1] = edge(mid, e[1].dividor, function);
+      div[2] = edges[1];
+      div[3] = edges[0];
+    } else {
+      throw new IllegalArgumentException("Wrong index : " + index);
+    }
+    return div;
+  }
+  
+  private final VoxelEdge[] generateParentEdges(int index, Function3d function) {
+    VoxelEdge[] e = new VoxelEdge[4];
+    if (index == 0) {
+      e[0] = edges[0].generateParentWithThisAsMinus(function);
+      e[3] = edges[3].generateParentWithThisAsMinus(function);
+      Position d = substract(edges[3].plus.position, edges[3].minus.position);
+      Position p = add(edges[0].plus.position, d);
+      VoxelNode nn = new VoxelNode(p, function);
+      e[1] = new VoxelEdge(e[0].plus, nn, function);
+      e[1].divide(function);
+      e[2] = new VoxelEdge(e[3].plus, nn, function);
+      e[2].divide(function);
+    } else if (index == 1) {
+      e[0] = edges[0].generateParentWithThisAsPlus(function);
+      e[1] = edges[1].generateParentWithThisAsMinus(function);
+      Position d = substract(edges[1].plus.position, edges[1].minus.position);
+      Position p = add(edges[0].minus.position, d);
+      VoxelNode nn = new VoxelNode(p, function);
+      e[2] = new VoxelEdge(nn, e[1].plus, function);
+      e[2].divide(function);
+      e[3] = new VoxelEdge(e[0].minus, nn, function);
+      e[3].divide(function);
+    } else if (index == 2) {
+      e[1] = edges[1].generateParentWithThisAsPlus(function);
+      e[2] = edges[2].generateParentWithThisAsPlus(function);
+      Position d = substract(edges[1].plus.position, edges[1].minus.position);
+      Position p = substract(edges[2].minus.position, d);
+      VoxelNode nn = new VoxelNode(p, function);
+      e[0] = new VoxelEdge(nn, e[1].minus, function);
+      e[0].divide(function);
+      e[3] = new VoxelEdge(nn, e[2].minus, function);
+      e[3].divide(function);
+    } else if (index == 3) {
+      e[2] = edges[2].generateParentWithThisAsMinus(function);
+      e[3] = edges[3].generateParentWithThisAsPlus(function);
+      Position d = substract(edges[2].plus.position, edges[2].minus.position);
+      Position p = add(edges[3].minus.position, d);
+      VoxelNode nn = new VoxelNode(p, function);
+      e[0] = new VoxelEdge(e[3].minus, nn, function);
+      e[0].divide(function);
+      e[1] = new VoxelEdge(nn, e[2].plus, function);
+      e[1].divide(function);
+    } else {
+      throw new IllegalArgumentException("Wrong index : " + index);
+    }
+    return e;
   }
   
   public final VoxelOctree plus() {

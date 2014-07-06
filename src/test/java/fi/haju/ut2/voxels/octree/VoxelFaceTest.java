@@ -31,7 +31,6 @@ public class VoxelFaceTest {
     for(VoxelFace child : face.children) edges.addAll(Sets.newHashSet(child.edges));
     assertThat(edges.size(), is(16));
     for (VoxelEdge edge : edges) assertEdgeValid(edge);
-    
   }
 
   @Test public void face_division_divides_edges_of_the_face() {
@@ -46,6 +45,19 @@ public class VoxelFaceTest {
     VoxelFace face = createTestFace(function);
     face.divide(function);
     for (int i = 0; i < 4; ++i) assertFaceCorrectlyConnected(face.children[i]);
+  }
+  
+  @Test public void face_parent_creation_creates_valid_parent_and_siblings() {
+    Function3d function = new SinoidalFunction();
+    for (int index = 0; index < 4; ++index) {
+      VoxelFace face = createTestFace(function);
+      VoxelFace parent = face.generateParent(index, function);
+      assertFaceCorrectlyConnected(parent);
+      assertFaceCorrectlyConnected(parent.children[0]);
+      assertFaceCorrectlyConnected(parent.children[1]);
+      assertFaceCorrectlyConnected(parent.children[2]);
+      assertFaceCorrectlyConnected(parent.children[3]);
+    }
   }
   
   public static void assertFaceCorrectlyConnected(VoxelFace face) {

@@ -4,6 +4,8 @@ import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.voxels.functions.Function3d;
 import static fi.haju.ut2.voxels.octree.VoxelNode.node;
 import static fi.haju.ut2.geometry.Position.average;
+import static fi.haju.ut2.geometry.Position.substract;
+import static fi.haju.ut2.geometry.Position.add;
 
 public class VoxelEdge {
   
@@ -28,6 +30,28 @@ public class VoxelEdge {
     }
   }
 
+  public VoxelEdge generateParentWithThisAsPlus(Function3d function) {
+    if (parent != null) throw new IllegalStateException();
+    Position minPos = substract(minus.position, substract(plus.position, minus.position));
+    VoxelNode minNode = new VoxelNode(minPos, function);
+    parent = new VoxelEdge(minNode, plus, function);
+    parent.dividor = minus;
+    parent.plusChild = this;
+    parent.minusChild = new VoxelEdge(minNode, minus, function);
+    return parent;
+  }
+  
+  public VoxelEdge generateParentWithThisAsMinus(Function3d function) {
+    if (parent != null) throw new IllegalStateException();
+    Position plusPos = add(plus.position, substract(plus.position, minus.position));
+    VoxelNode plusNode = new VoxelNode(plusPos, function);
+    parent = new VoxelEdge(minus, plusNode, function);
+    parent.dividor = plus;
+    parent.minusChild = this;
+    parent.plusChild = new VoxelEdge(plus, plusNode, function);
+    return parent;
+  }
+  
   private static Position interpolateVertex(VoxelNode from, VoxelNode to, Function3d function) {
     boolean frompos = from.positive;
     Position fromv = from.position;

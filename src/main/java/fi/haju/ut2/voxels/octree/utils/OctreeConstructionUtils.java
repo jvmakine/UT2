@@ -26,6 +26,49 @@ public final class OctreeConstructionUtils {
     
   private static Logger log = Logger.getLogger(OctreeConstructionUtils.class.getName());
   
+  public static int getParentsChildIndex(Position p, VoxelFace[] faces) {
+    boolean above =  faces[0].edges[0].minus.position.y <= p.y;
+    boolean west = faces[1].edges[0].minus.position.x <= p.x;
+    boolean north = faces[2].edges[0].minus.position.z <= p.z;
+    boolean east = faces[3].edges[0].minus.position.x >= p.x;
+    boolean south = faces[4].edges[0].minus.position.z >= p.z;
+    boolean below = faces[5].edges[0].minus.position.y >= p.y;
+    
+    if (above && west && north) return 6;
+    if (above && west && south) return 5;
+    if (above && east && north) return 7;
+    if (above && east && south) return 4;
+    
+    if (below && west && north) return 2;
+    if (below && west && south) return 1;
+    if (below && east && north) return 3;
+    if (below && east && south) return 0;
+    
+    if (above && north) return 6;
+    if (above && south) return 5;
+    if (below && north) return 2;
+    if (below && south) return 0;
+    
+    if (above && west) return 5;
+    if (above && east) return 7;
+    if (below && west) return 2;
+    if (below && east) return 3;
+    
+    if (west && north) return 6;
+    if (west && south) return 5;
+    if (east && north) return 7;
+    if (east && south) return 4;
+    
+    if (above) return 6;
+    if (below) return 2;
+    if (south) return 5;
+    if (north) return 6;
+    if (west) return 6;
+    if (east) return 7;
+    
+    throw new IllegalArgumentException("position p is inside child");
+  }
+  
   public static VoxelFace[] createInitialFaces(Position upperLeftBackCorner, double side, Function3d function) {
     VoxelFace[] faces = new VoxelFace[6];
     VoxelNode[] corners = new VoxelNode[8];
