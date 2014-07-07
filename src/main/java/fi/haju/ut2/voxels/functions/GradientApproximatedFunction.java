@@ -14,7 +14,7 @@ public abstract class GradientApproximatedFunction implements Function3d {
     double yp = value(x, y+d, z);
     double zm = value(x, y, z-d);
     double zp = value(x, y, z+d);
-    return new Position((xp-xm)/d, (yp-ym)/d, (zp-zm)/d);
+    return new Position((xp-xm)/d/2, (yp-ym)/d/2, (zp-zm)/d/2);
   }
 
 }

@@ -2,6 +2,7 @@ package fi.haju.ut2.geometry;
 
 import java.util.List;
 import static java.lang.Math.abs;
+import static java.lang.Math.sqrt;
 
 public final class Position {
   public double x;
@@ -102,6 +103,10 @@ public final class Position {
   
   public static double difference(Position p1, Position p2) {
     return abs(p1.x - p2.x) + abs(p1.y - p2.y) + abs(p1.z - p2.z); 
+  }
+
+  public double length() {
+    return sqrt(x*x + y*y + z*z);
   }
 
 }

@@ -40,8 +40,23 @@ public class VoxelFace {
     return new VoxelFace(e1, e2, e3, e4);
   }
   
+  public void setSides(VoxelOctree minus, VoxelOctree plus) {
+    this.plus = plus;
+    this.minus = minus;
+  }
+  
   public final boolean hasChildren() {
     return dividor != null;
+  }
+  
+  public VoxelEdge dividingEdge(int index) {
+    switch (index) {
+    case 0 : return children[0].edges[1];
+    case 1 : return children[1].edges[2];
+    case 2 : return children[2].edges[3];
+    case 3 : return children[3].edges[0];
+    }
+    throw new IllegalArgumentException();
   }
   
   public final VoxelFace generateParent(int index, Function3d function) {
@@ -98,8 +113,8 @@ public class VoxelFace {
     if (index == 0) {
       e[0] = edges[0].generateParentWithThisAsMinus(function);
       e[3] = edges[3].generateParentWithThisAsMinus(function);
-      Position d = substract(edges[3].plus.position, edges[3].minus.position);
-      Position p = add(edges[0].plus.position, d);
+      Position d = e[3].edgeVector();
+      Position p = add(e[0].plus.position, d);
       VoxelNode nn = new VoxelNode(p, function);
       e[1] = new VoxelEdge(e[0].plus, nn, function);
       e[1].divide(function);
@@ -108,8 +123,8 @@ public class VoxelFace {
     } else if (index == 1) {
       e[0] = edges[0].generateParentWithThisAsPlus(function);
       e[1] = edges[1].generateParentWithThisAsMinus(function);
-      Position d = substract(edges[1].plus.position, edges[1].minus.position);
-      Position p = add(edges[0].minus.position, d);
+      Position d = e[1].edgeVector();
+      Position p = add(e[0].minus.position, d);
       VoxelNode nn = new VoxelNode(p, function);
       e[2] = new VoxelEdge(nn, e[1].plus, function);
       e[2].divide(function);
@@ -118,8 +133,8 @@ public class VoxelFace {
     } else if (index == 2) {
       e[1] = edges[1].generateParentWithThisAsPlus(function);
       e[2] = edges[2].generateParentWithThisAsPlus(function);
-      Position d = substract(edges[1].plus.position, edges[1].minus.position);
-      Position p = substract(edges[2].minus.position, d);
+      Position d = e[1].edgeVector();
+      Position p = substract(e[2].minus.position, d);
       VoxelNode nn = new VoxelNode(p, function);
       e[0] = new VoxelEdge(nn, e[1].minus, function);
       e[0].divide(function);
@@ -128,8 +143,8 @@ public class VoxelFace {
     } else if (index == 3) {
       e[2] = edges[2].generateParentWithThisAsMinus(function);
       e[3] = edges[3].generateParentWithThisAsPlus(function);
-      Position d = substract(edges[2].plus.position, edges[2].minus.position);
-      Position p = add(edges[3].minus.position, d);
+      Position d = e[2].edgeVector();
+      Position p = add(e[3].minus.position, d);
       VoxelNode nn = new VoxelNode(p, function);
       e[0] = new VoxelEdge(e[3].minus, nn, function);
       e[0].divide(function);

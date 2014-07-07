@@ -19,6 +19,8 @@ public class GameModule extends AbstractModule {
         new PerlinTerrainFunction()
     );
     result.divideAllToLevel(5);
+    result = result.generateOctreeWithChild(0);
+    result.divideAllToLevel(5);
     return result;
   }
 

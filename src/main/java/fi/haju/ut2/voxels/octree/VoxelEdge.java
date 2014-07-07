@@ -30,8 +30,15 @@ public class VoxelEdge {
     }
   }
 
+  public Position edgeVector() {
+    return substract(plus.position, minus.position);
+  }
+  
   public VoxelEdge generateParentWithThisAsPlus(Function3d function) {
-    if (parent != null) throw new IllegalStateException();
+    if (parent != null) {
+      if (parent.plusChild != this) throw new IllegalStateException();
+      return parent;
+    }
     Position minPos = substract(minus.position, substract(plus.position, minus.position));
     VoxelNode minNode = new VoxelNode(minPos, function);
     parent = new VoxelEdge(minNode, plus, function);
@@ -42,7 +49,10 @@ public class VoxelEdge {
   }
   
   public VoxelEdge generateParentWithThisAsMinus(Function3d function) {
-    if (parent != null) throw new IllegalStateException();
+    if (parent != null) {
+      if (parent.minusChild != this) throw new IllegalStateException();
+      return parent;
+    }
     Position plusPos = add(plus.position, substract(plus.position, minus.position));
     VoxelNode plusNode = new VoxelNode(plusPos, function);
     parent = new VoxelEdge(minus, plusNode, function);

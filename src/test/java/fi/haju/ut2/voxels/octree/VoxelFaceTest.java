@@ -15,6 +15,7 @@ import static fi.haju.ut2.geometry.Position.pos;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.number.IsCloseTo.closeTo;
 
 public class VoxelFaceTest {
   
@@ -57,6 +58,17 @@ public class VoxelFaceTest {
       assertFaceCorrectlyConnected(parent.children[1]);
       assertFaceCorrectlyConnected(parent.children[2]);
       assertFaceCorrectlyConnected(parent.children[3]);
+    }
+  }
+  
+  @Test public void face_parent_edges_are_twice_as_long_as_child_edges() {
+    Function3d function = new SinoidalFunction();
+    for (int index = 0; index < 4; ++index) {
+      VoxelFace face = createTestFace(function);
+      double cl = face.edges[0].edgeVector().length();
+      VoxelFace parent = face.generateParent(index, function);
+      double pl = parent.edges[0].edgeVector().length();
+      assertThat(pl, closeTo(2*cl, 0.001));
     }
   }
   
