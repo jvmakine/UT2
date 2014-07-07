@@ -138,20 +138,25 @@ public final class VoxelOctree {
       box[4].divide(function);
       box[5] = face(box[2].edges[2], e[0], e[1], box[1].edges[2]);
       box[5].divide(function);
-      // make dividing edges
+      // existing dividing edges
       dive[0] = faces[3].edges[1];
       dive[1] = faces[5].edges[2];
       dive[2] = faces[5].edges[1];
-      dive[3] = edge(mid, box[3].dividor, function);
-      dive[4] = edge(mid, box[4].dividor, function);
-      dive[5] = edge(mid, box[5].dividor, function);
-      // make dividing faces
-      // xz
+      // existing dividing faces
       div[0][0] = faces[5];
       div[1][0] = faces[3];
       div[2][0] = faces[4];
     }
+    // make dividing edges
+    if (dive[0] == null) dive[0] = edge(box[0].dividor, mid, function);
+    if (dive[1] == null) dive[1] = edge(box[1].dividor, mid, function);
+    if (dive[2] == null) dive[2] = edge(box[2].dividor, mid, function);
     
+    if (dive[3] == null) dive[3] = edge(mid, box[3].dividor, function);
+    if (dive[4] == null) dive[4] = edge(mid, box[4].dividor, function);
+    if (dive[5] == null) dive[5] = edge(mid, box[5].dividor, function);
+    // make dividing faces
+    // xz
     if (div[0][0] == null) div[0][0] = face(box[2].dividingEdge(3), dive[2], dive[1], box[1].dividingEdge(3));
     if (div[0][1] == null) div[0][1] = face(box[2].dividingEdge(1), box[3].dividingEdge(3), dive[3], dive[2]);
     if (div[0][2] == null) div[0][2] = face(dive[3], box[3].dividingEdge(1), box[4].dividingEdge(1), dive[4]);
