@@ -113,6 +113,8 @@ public final class VoxelOctree {
     VoxelFace[] box = new VoxelFace[6];
     // middle node
     VoxelNode mid = null;
+    // dividing edges
+    VoxelEdge[] dive = new VoxelEdge[6];
     
     if (index == 0) {
       // extend existing faces
@@ -137,7 +139,6 @@ public final class VoxelOctree {
       box[5] = face(box[2].edges[2], e[0], e[1], box[1].edges[2]);
       box[5].divide(function);
       // make dividing edges
-      VoxelEdge[] dive = new VoxelEdge[6];
       dive[0] = faces[3].edges[1];
       dive[1] = faces[5].edges[2];
       dive[2] = faces[5].edges[1];
@@ -147,20 +148,24 @@ public final class VoxelOctree {
       // make dividing faces
       // xz
       div[0][0] = faces[5];
-      div[0][1] = face(box[2].dividingEdge(1), box[3].dividingEdge(3), dive[3], dive[2]);
-      div[0][2] = face(dive[3], box[3].dividingEdge(1), box[4].dividingEdge(1), dive[4]);
-      div[0][3] = face(dive[1], dive[4], box[4].dividingEdge(3), box[1].dividingEdge(1));
-      // yz
       div[1][0] = faces[3];
-      div[1][1] = face(box[0].dividingEdge(2), box[4].dividingEdge(0), dive[4], dive[0]);
-      div[1][2] = face(dive[4], box[4].dividingEdge(2), box[5].dividingEdge(2), dive[5]);
-      div[1][3] = face(dive[2], dive[5], box[5].dividingEdge(0), box[2].dividingEdge(2));
-      // xy
       div[2][0] = faces[4];
-      div[2][1] = face(box[0].dividingEdge(1), box[3].dividingEdge(0), dive[3], dive[0]);
-      div[2][2] = face(dive[3], box[3].dividingEdge(2), box[5].dividingEdge(1), dive[5]);
-      div[2][3] = face(dive[1], dive[5], box[5].dividingEdge(3), box[1].dividingEdge(2));
     }
+    
+    if (div[0][0] == null) div[0][0] = face(box[2].dividingEdge(3), dive[2], dive[1], box[1].dividingEdge(3));
+    if (div[0][1] == null) div[0][1] = face(box[2].dividingEdge(1), box[3].dividingEdge(3), dive[3], dive[2]);
+    if (div[0][2] == null) div[0][2] = face(dive[3], box[3].dividingEdge(1), box[4].dividingEdge(1), dive[4]);
+    if (div[0][3] == null) div[0][3] = face(dive[1], dive[4], box[4].dividingEdge(3), box[1].dividingEdge(1));
+    // yz
+    if (div[1][0] == null) div[1][0] = face(box[0].dividingEdge(0), dive[0], dive[2], box[1].dividingEdge(0));
+    if (div[1][1] == null) div[1][1] = face(box[0].dividingEdge(2), box[4].dividingEdge(0), dive[4], dive[0]);
+    if (div[1][2] == null) div[1][2] = face(dive[4], box[4].dividingEdge(2), box[5].dividingEdge(2), dive[5]);
+    if (div[1][3] == null) div[1][3] = face(dive[2], dive[5], box[5].dividingEdge(0), box[2].dividingEdge(2));
+    // xy
+    if (div[2][0] == null) div[2][0] = face(box[0].dividingEdge(3), dive[0], dive[1], box[1].dividingEdge(0));
+    if (div[2][1] == null) div[2][1] = face(box[0].dividingEdge(1), box[3].dividingEdge(0), dive[3], dive[0]);
+    if (div[2][2] == null) div[2][2] = face(dive[3], box[3].dividingEdge(2), box[5].dividingEdge(1), dive[5]);
+    if (div[2][3] == null) div[2][3] = face(dive[1], dive[5], box[5].dividingEdge(3), box[1].dividingEdge(2));
     
     // make parent
     parent = new VoxelOctree();
