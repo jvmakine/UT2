@@ -106,9 +106,16 @@ public final class VoxelOctree {
   }
 
   public VoxelOctree generateOctreeWithChild(int index) {
+    // dividing faces
+    VoxelFace[][] div = new VoxelFace[3][];
+    for(int i = 0; i < 3; ++i) div[i] = new VoxelFace[4];
+    // parent faces
+    VoxelFace[] box = new VoxelFace[6];
+    // middle node
+    VoxelNode mid = null;
+    
     if (index == 0) {
       // extend existing faces
-      VoxelFace[] box = new VoxelFace[6];
       box[0] = faces[0].generateParent(0, function);
       box[1] = faces[1].generateParent(0, function);
       box[2] = faces[2].generateParent(0, function);
@@ -116,7 +123,7 @@ public final class VoxelOctree {
       Position d = box[2].edges[2].edgeVector();
       Position np = add(box[1].edges[2].plus.position, d);
       VoxelNode nn = new VoxelNode(np, function);
-      VoxelNode mid = faces[3].edges[2].plus;
+      mid = faces[3].edges[2].plus;
       // Make new outer edges
       VoxelEdge[] e = { 
         edge(box[2].edges[2].plus, nn, function),
@@ -138,8 +145,6 @@ public final class VoxelOctree {
       dive[4] = edge(mid, box[4].dividor, function);
       dive[5] = edge(mid, box[5].dividor, function);
       // make dividing faces
-      VoxelFace[][] div = new VoxelFace[3][];
-      for(int i = 0; i < 3; ++i) div[i] = new VoxelFace[4];
       // xz
       div[0][0] = faces[5];
       div[0][1] = face(box[2].dividingEdge(1), box[3].dividingEdge(3), dive[3], dive[2]);
@@ -155,57 +160,59 @@ public final class VoxelOctree {
       div[2][1] = face(box[0].dividingEdge(1), box[3].dividingEdge(0), dive[3], dive[0]);
       div[2][2] = face(dive[3], box[3].dividingEdge(2), box[5].dividingEdge(1), dive[5]);
       div[2][3] = face(dive[1], dive[5], box[5].dividingEdge(3), box[1].dividingEdge(2));
-      // make parent
-      parent = new VoxelOctree();
-      parent.faces = box;
-      parent.dividor = mid;
-      parent.depth = depth - 1;
-      parent.function = function;
-      parent.children = new VoxelOctree[8];
-      box[0].plus = parent;
-      box[1].plus = parent;
-      box[2].plus = parent;
-      box[3].minus = parent;
-      box[4].minus = parent;
-      box[5].minus = parent;
-      // make children
-      for (int i = 0; i < 8; ++i) {
-        parent.children[i] = new VoxelOctree();
-        parent.children[i].depth = depth;
-        parent.children[i].function = function;
-      }
-      parent.children[0] = this;
-      parent.children[1].faces = new VoxelFace[] { box[0].children[1], div[1][0], box[2].children[1], box[3].children[0], div[2][1], div[0][1] };
-      parent.children[2].faces = new VoxelFace[] { box[0].children[2], div[1][1], div[2][1],  box[3].children[1], box[4].children[1], div[0][2] };
-      parent.children[3].faces = new VoxelFace[] { box[0].children[3], box[1].children[1], div[2][0], div[1][1], box[4].children[0], div[0][3] };
-      
-      parent.children[4].faces = new VoxelFace[] { div[0][0], box[1].children[3], box[2].children[3], div[1][3], div[2][3], box[5].children[0] };
-      parent.children[5].faces = new VoxelFace[] { div[0][1], div[1][3], box[2].children[2], box[3].children[3], div[2][2], box[5].children[1] };
-      parent.children[6].faces = new VoxelFace[] { div[0][2], div[1][2], div[2][2], box[3].children[2], box[4].children[2], box[5].children[2] };
-      parent.children[7].faces = new VoxelFace[] { div[0][3], box[1].children[2], div[2][3], div[1][2], box[4].children[3], box[5].children[3] };
-      // setup child neighbours
-      for(int i = 0; i < 4; ++i) { div[0][i].setSides(parent.children[i], parent.children[4 + i]); }
-      
-      div[1][0].setSides(parent.children[0], parent.children[1]);
-      div[1][1].setSides(parent.children[3], parent.children[2]);
-      div[1][2].setSides(parent.children[7], parent.children[6]);
-      div[1][3].setSides(parent.children[4], parent.children[5]);
-      
-      div[2][0].setSides(parent.children[0], parent.children[3]);
-      div[2][1].setSides(parent.children[1], parent.children[2]);
-      div[2][2].setSides(parent.children[5], parent.children[6]);
-      div[2][3].setSides(parent.children[4], parent.children[7]);
-      
-      for (int i = 0; i < 8; ++i) {
-        if (i != 0) {
-          parent.children[i].calculateComponents();
-        }
-      }
-      
-      return parent;
     }
-    // TODO Auto-generated method stub
-    return null;
+    
+    // make parent
+    parent = new VoxelOctree();
+    parent.faces = box;
+    parent.dividor = mid;
+    parent.depth = depth - 1;
+    parent.function = function;
+    parent.children = new VoxelOctree[8];
+    box[0].plus = parent;
+    box[1].plus = parent;
+    box[2].plus = parent;
+    box[3].minus = parent;
+    box[4].minus = parent;
+    box[5].minus = parent;
+    
+    // make children
+    for (int i = 0; i < 8; ++i) {
+      parent.children[i] = new VoxelOctree();
+      parent.children[i].depth = depth;
+      parent.children[i].function = function;
+    }
+    parent.children[index] = this;
+    if (index != 0) parent.children[0].faces = new VoxelFace[] { box[0].children[0], box[1].children[0], box[1].children[0], div[1][0], div[2][0], div[0][0] };
+    if (index != 1) parent.children[1].faces = new VoxelFace[] { box[0].children[1], div[1][0], box[2].children[1], box[3].children[0], div[2][1], div[0][1] };
+    if (index != 2) parent.children[2].faces = new VoxelFace[] { box[0].children[2], div[1][1], div[2][1],  box[3].children[1], box[4].children[1], div[0][2] };
+    if (index != 3) parent.children[3].faces = new VoxelFace[] { box[0].children[3], box[1].children[1], div[2][0], div[1][1], box[4].children[0], div[0][3] };
+      
+    if (index != 4) parent.children[4].faces = new VoxelFace[] { div[0][0], box[1].children[3], box[2].children[3], div[1][3], div[2][3], box[5].children[0] };
+    if (index != 5) parent.children[5].faces = new VoxelFace[] { div[0][1], div[1][3], box[2].children[2], box[3].children[3], div[2][2], box[5].children[1] };
+    if (index != 6) parent.children[6].faces = new VoxelFace[] { div[0][2], div[1][2], div[2][2], box[3].children[2], box[4].children[2], box[5].children[2] };
+    if (index != 7) parent.children[7].faces = new VoxelFace[] { div[0][3], box[1].children[2], div[2][3], div[1][2], box[4].children[3], box[5].children[3] };
+    
+      // setup child neighbours
+    for(int i = 0; i < 4; ++i) { div[0][i].setSides(parent.children[i], parent.children[4 + i]); }
+      
+    div[1][0].setSides(parent.children[0], parent.children[1]);
+    div[1][1].setSides(parent.children[3], parent.children[2]);
+    div[1][2].setSides(parent.children[7], parent.children[6]);
+    div[1][3].setSides(parent.children[4], parent.children[5]);
+      
+    div[2][0].setSides(parent.children[0], parent.children[3]);
+    div[2][1].setSides(parent.children[1], parent.children[2]);
+    div[2][2].setSides(parent.children[5], parent.children[6]);
+    div[2][3].setSides(parent.children[4], parent.children[7]);
+      
+    for (int i = 0; i < 8; ++i) {
+      if (i != index) {
+        parent.children[i].calculateComponents();
+      }
+    }
+      
+    return parent;
   }
 
   private final boolean isInside(Position p) {
