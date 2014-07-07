@@ -177,6 +177,36 @@ public final class VoxelOctree {
       div[0][1] = faces[5];
       div[1][0] = faces[1];
       div[2][1] = faces[4];
+    } else if (index == 2) {
+      // extend existing faces
+      box[0] = faces[0].generateParent(2, function);
+      box[3] = faces[3].generateParent(1, function);
+      box[4] = faces[4].generateParent(1, function);
+      // generate new corner
+      Position d = box[3].edges[2].edgeVector();
+      Position np = substract(box[4].edges[2].minus.position, d);
+      VoxelNode nn = new VoxelNode(np, function);
+      mid = faces[2].edges[2].minus;
+      // Make new outer edges
+      VoxelEdge[] e = { 
+        edge(box[0].edges[0].minus, nn, function),
+        edge(nn, box[3].edges[2].minus, function),
+        edge(nn, box[4].edges[2].minus, function) };
+      // make new outer faces
+      box[1] = face(box[0].edges[3], box[4].edges[3], e[2], e[0]);
+      box[1].divide(function);
+      box[2] = face(box[0].edges[0], box[3].edges[3], e[1], e[0]);
+      box[2].divide(function);
+      box[5] = face(box[2].edges[2], box[3].edges[2], box[4].edges[2], box[1].edges[2]);
+      box[5].divide(function);
+      // existing dividing edges
+      dive[0] = faces[1].edges[3];
+      dive[3] = faces[2].edges[2];
+      dive[4] = faces[1].edges[2];
+      // existing dividing faces
+      div[0][2] = faces[5];
+      div[1][1] = faces[1];
+      div[2][1] = faces[2];
     }
     // make dividing edges
     if (dive[0] == null) dive[0] = edge(box[0].dividor, mid, function);
@@ -193,7 +223,7 @@ public final class VoxelOctree {
     if (div[0][2] == null) div[0][2] = face(dive[3], box[3].dividingEdge(1), box[4].dividingEdge(1), dive[4]);
     if (div[0][3] == null) div[0][3] = face(dive[1], dive[4], box[4].dividingEdge(3), box[1].dividingEdge(1));
     // yz
-    if (div[1][0] == null) div[1][0] = face(box[0].dividingEdge(0), dive[0], dive[2], box[1].dividingEdge(0));
+    if (div[1][0] == null) div[1][0] = face(box[0].dividingEdge(0), dive[0], dive[2], box[2].dividingEdge(0));
     if (div[1][1] == null) div[1][1] = face(box[0].dividingEdge(2), box[4].dividingEdge(0), dive[4], dive[0]);
     if (div[1][2] == null) div[1][2] = face(dive[4], box[4].dividingEdge(2), box[5].dividingEdge(2), dive[5]);
     if (div[1][3] == null) div[1][3] = face(dive[2], dive[5], box[5].dividingEdge(0), box[2].dividingEdge(2));
