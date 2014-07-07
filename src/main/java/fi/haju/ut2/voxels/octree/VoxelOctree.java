@@ -14,6 +14,7 @@ import fi.haju.ut2.voxels.octree.utils.OctreeConstructionUtils;
 
 import static fi.haju.ut2.voxels.octree.VoxelFace.face;
 import static fi.haju.ut2.geometry.Position.add;
+import static fi.haju.ut2.geometry.Position.substract;
 import static fi.haju.ut2.voxels.octree.VoxelEdge.edge;
 
 /**
@@ -146,6 +147,36 @@ public final class VoxelOctree {
       div[0][0] = faces[5];
       div[1][0] = faces[3];
       div[2][0] = faces[4];
+    } else if (index == 1) {
+      // extend existing faces
+      box[0] = faces[0].generateParent(1, function);
+      box[2] = faces[2].generateParent(1, function);
+      box[3] = faces[3].generateParent(0, function);
+      // generate new corner
+      Position d = box[2].edges[2].edgeVector();
+      Position np = substract(box[3].edges[2].plus.position, d);
+      VoxelNode nn = new VoxelNode(np, function);
+      mid = faces[1].edges[2].plus;
+      // Make new outer edges
+      VoxelEdge[] e = { 
+        edge(nn, box[3].edges[2].plus, function),
+        edge(box[0].edges[2].minus, nn, function),
+        edge(box[2].edges[2].minus, nn, function) };
+      // make new outer faces
+      box[1] = face(box[0].edges[3], e[1], e[2], box[2].edges[3]);
+      box[1].divide(function);
+      box[4] = face(box[0].edges[2], box[3].edges[1], e[0], e[1]);
+      box[4].divide(function);
+      box[5] = face(box[2].edges[2], box[3].edges[2], e[0], e[2]);
+      box[5].divide(function);
+      // existing dividing edges
+      dive[0] = faces[1].edges[1];
+      dive[2] = faces[1].edges[2];
+      dive[3] = faces[4].edges[2];
+      // existing dividing faces
+      div[0][1] = faces[5];
+      div[1][0] = faces[1];
+      div[2][1] = faces[4];
     }
     // make dividing edges
     if (dive[0] == null) dive[0] = edge(box[0].dividor, mid, function);
@@ -193,7 +224,7 @@ public final class VoxelOctree {
       parent.children[i].function = function;
     }
     parent.children[index] = this;
-    if (index != 0) parent.children[0].faces = new VoxelFace[] { box[0].children[0], box[1].children[0], box[1].children[0], div[1][0], div[2][0], div[0][0] };
+    if (index != 0) parent.children[0].faces = new VoxelFace[] { box[0].children[0], box[1].children[0], box[2].children[0], div[1][0], div[2][0], div[0][0] };
     if (index != 1) parent.children[1].faces = new VoxelFace[] { box[0].children[1], div[1][0], box[2].children[1], box[3].children[0], div[2][1], div[0][1] };
     if (index != 2) parent.children[2].faces = new VoxelFace[] { box[0].children[2], div[1][1], div[2][1],  box[3].children[1], box[4].children[1], div[0][2] };
     if (index != 3) parent.children[3].faces = new VoxelFace[] { box[0].children[3], box[1].children[1], div[2][0], div[1][1], box[4].children[0], div[0][3] };

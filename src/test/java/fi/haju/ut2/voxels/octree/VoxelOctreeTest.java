@@ -26,18 +26,20 @@ public class VoxelOctreeTest {
     assertCorrectlyConnected(tree.children[7]);
   }
   
-  @Test public void parent_octree_has_correctly_connected_edges() {    
-    VoxelOctree tree = createOctree().generateOctreeWithChild(0);
-    assertCorrectlyConnected(tree);
-    assertCorrectlyConnected(tree.children[0]);
-    assertCorrectlyConnected(tree.children[1]);
-    assertCorrectlyConnected(tree.children[2]);
-    assertCorrectlyConnected(tree.children[3]);
-    assertCorrectlyConnected(tree.children[4]);
-    assertCorrectlyConnected(tree.children[5]);
-    assertCorrectlyConnected(tree.children[6]);
-    assertCorrectlyConnected(tree.children[7]);
-    assertChildrenCorrectlyConnected(tree);
+  @Test public void parent_octree_has_correctly_connected_edges() {
+    for (int i = 0; i < 2; ++i) {
+      VoxelOctree tree = createOctree().generateOctreeWithChild(i);
+      assertCorrectlyConnected(tree);
+      assertCorrectlyConnected(tree.children[0]);
+      assertCorrectlyConnected(tree.children[1]);
+      assertCorrectlyConnected(tree.children[2]);
+      assertCorrectlyConnected(tree.children[3]);
+      assertCorrectlyConnected(tree.children[4]);
+      assertCorrectlyConnected(tree.children[5]);
+      assertCorrectlyConnected(tree.children[6]);
+      assertCorrectlyConnected(tree.children[7]);
+      assertChildrenCorrectlyConnected(tree);
+    }
   }
   
   @Test public void neighbours_connected_correctly_between_children() {
