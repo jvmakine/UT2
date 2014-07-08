@@ -1,6 +1,9 @@
 package fi.haju.ut2.geometry;
 
 import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
 
@@ -107,6 +110,20 @@ public final class Position {
 
   public double length() {
     return sqrt(x*x + y*y + z*z);
+  }
+
+  public List<Position> centeredEmptyCube(double d) {
+    List<Position> result = Lists.newArrayList();
+    Position corner = add(pos(-d,-d,-d));
+    for (int x = 0; x < 3; ++x) {
+      for (int y = 0; y < 3; ++y) {
+        for (int z = 0; z < 3; ++z) {
+          if (x == 1 && y == 1 && z == 1) continue; // do not include center point
+          result.add(corner.add(pos(x*d, y*d, z*d)));
+        }
+      }
+    }
+    return result;
   }
 
 }

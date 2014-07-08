@@ -92,7 +92,9 @@ public final class VoxelOctree {
         divide();
       }
       for(int i = 0; i < 8; ++i) {
-        if (children[i].isInside(p)) return children[i].getOctreeAtPosition(p, depth);
+        if (children[i].isInside(p)) {
+          return children[i].getOctreeAtPosition(p, depth);
+        }
       }
       throw new IllegalStateException();
     } else {
@@ -437,12 +439,12 @@ public final class VoxelOctree {
   }
 
   private final boolean isInside(Position p) {
-    return faces[0].edges[0].minus.position.y >= p.y 
-        && faces[5].edges[0].minus.position.y <= p.y
-        && faces[1].edges[0].minus.position.x >= p.x
-        && faces[3].edges[0].minus.position.x <= p.x
-        && faces[2].edges[0].minus.position.z >= p.z
-        && faces[4].edges[0].minus.position.z <= p.z;
+    return faces[0].edges[0].minus.position.y <= p.y 
+        && faces[5].edges[0].minus.position.y >= p.y
+        && faces[1].edges[0].minus.position.x <= p.x
+        && faces[3].edges[0].minus.position.x >= p.x
+        && faces[2].edges[0].minus.position.z <= p.z
+        && faces[4].edges[0].minus.position.z >= p.z;
   }
   
   public void calculateComponents() {
@@ -492,5 +494,9 @@ public final class VoxelOctree {
   public VoxelOctree east() { return faces[3].plus(); }
   public VoxelOctree south() { return faces[4].plus(); }
   public VoxelOctree down() { return faces[5].plus(); }
+
+  public double edgeLength() {
+    return faces[0].edges[0].edgeVector().length();
+  }
   
 }

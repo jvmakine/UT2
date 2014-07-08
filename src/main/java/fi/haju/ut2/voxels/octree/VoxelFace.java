@@ -73,6 +73,10 @@ public class VoxelFace {
     if (index != 2) f.children[2] = face(divs[1], e[1].plusChild, e[2].plusChild, divs[2]);
     if (index != 3) f.children[3] = face(divs[3], divs[2], e[2].minusChild, e[3].plusChild);
     
+    if (index == 0) f.dividor = edges[2].plus;
+    else if (index == 1) f.dividor = edges[2].minus;
+    else if (index == 2) f.dividor = edges[0].minus;
+    else if (index == 3) f.dividor = edges[0].plus;
     return f;
   }
   

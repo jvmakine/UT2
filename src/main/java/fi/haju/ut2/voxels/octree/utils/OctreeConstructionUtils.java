@@ -6,7 +6,6 @@ import static fi.haju.ut2.voxels.octree.VoxelFace.face;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -24,15 +23,13 @@ import static fi.haju.ut2.voxels.octree.VoxelNode.node;
 
 public final class OctreeConstructionUtils {
     
-  private static Logger log = Logger.getLogger(OctreeConstructionUtils.class.getName());
-  
   public static int getParentsChildIndex(Position p, VoxelFace[] faces) {
-    boolean above =  faces[0].edges[0].minus.position.y <= p.y;
-    boolean west = faces[1].edges[0].minus.position.x <= p.x;
-    boolean north = faces[2].edges[0].minus.position.z <= p.z;
-    boolean east = faces[3].edges[0].minus.position.x >= p.x;
-    boolean south = faces[4].edges[0].minus.position.z >= p.z;
-    boolean below = faces[5].edges[0].minus.position.y >= p.y;
+    boolean above =  faces[0].edges[0].minus.position.y >= p.y;
+    boolean west = faces[1].edges[0].minus.position.x >= p.x;
+    boolean north = faces[2].edges[0].minus.position.z >= p.z;
+    boolean east = faces[3].edges[0].minus.position.x <= p.x;
+    boolean south = faces[4].edges[0].minus.position.z <= p.z;
+    boolean below = faces[5].edges[0].minus.position.y <= p.y;
     
     if (above && west && north) return 6;
     if (above && west && south) return 5;

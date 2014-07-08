@@ -18,9 +18,7 @@ public class GameModule extends AbstractModule {
     VoxelOctree result = new VoxelOctree(new Position(-8, -8, -8), 16,
         new PerlinTerrainFunction()
     );
-    result.divideAllToLevel(4);
-    result = result.generateOctreeWithChild(7);
-    result.divideAllToLevel(4);
+    result.divideAllToLevel(5);
     return result;
   }
 

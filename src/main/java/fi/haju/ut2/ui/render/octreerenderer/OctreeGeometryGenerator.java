@@ -1,4 +1,4 @@
-package fi.haju.ut2.ui.render.octreegenerator;
+package fi.haju.ut2.ui.render.octreerenderer;
 
 import java.util.List;
 

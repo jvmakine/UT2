@@ -47,7 +47,61 @@ public class VoxelOctreeTest {
     tree.divideAllToLevel(3);
     assertChildrenCorrectlyConnected(tree.children[0]);
   }
-
+  
+  @Test public void neighbour_loop_returns_to_itself() {
+    VoxelOctree tree = createOctree();
+    tree.divideAllToLevel(3);
+    VoxelOctree cell = tree.children[0].children[0];
+    assertThat(cell.down().east().up().west(), is(cell));
+  }
+  
+  @Test public void children_returned_correctly_by_position() {
+    VoxelOctree tree = new VoxelOctree(pos(-1,-1,-1), 2, new SinoidalFunction());
+    tree.divideAllToLevel(2);
+    assertThat(tree.getOctreeAtPosition(pos(-0.5, -0.5, -0.5), 1), is(tree.children[0]));
+    assertThat(tree.getOctreeAtPosition(pos(0.5, -0.5, -0.5), 1), is(tree.children[1]));
+    assertThat(tree.getOctreeAtPosition(pos(0.5, -0.5, 0.5), 1), is(tree.children[2]));
+    assertThat(tree.getOctreeAtPosition(pos(-0.5, -0.5, 0.5), 1), is(tree.children[3]));
+    
+    assertThat(tree.getOctreeAtPosition(pos(-0.5, 0.5, -0.5), 1), is(tree.children[4]));
+    assertThat(tree.getOctreeAtPosition(pos(0.5, 0.5, -0.5), 1), is(tree.children[5]));
+    assertThat(tree.getOctreeAtPosition(pos(0.5, 0.5, 0.5), 1), is(tree.children[6]));
+    assertThat(tree.getOctreeAtPosition(pos(-0.5, 0.5, 0.5), 1), is(tree.children[7]));
+  }
+  
+  @Test public void multiple_divisions_correctly_connected() {
+    VoxelOctree tree = createOctree();
+    tree.divideAllToLevel(3);
+    VoxelOctree cell = tree.children[0].children[0].children[0];
+    for (int i = 0; i < 7; ++i) cell = cell.east();
+    for (int i = 0; i < 7; ++i) cell = cell.south();
+    for (int i = 0; i < 7; ++i) cell = cell.down();
+    for (int i = 0; i < 7; ++i) cell = cell.west();
+    for (int i = 0; i < 7; ++i) cell = cell.up();
+    for (int i = 0; i < 7; ++i) cell = cell.north();
+    assertThat(cell, is(tree.children[0].children[0].children[0]));
+  }
+  
+  @Test public void new_siblings_returned_correctly_by_position() {
+    VoxelOctree tree = new VoxelOctree(pos(-1,-1,-1), 2, new SinoidalFunction());
+    VoxelOctree n = tree.getOctreeAtPosition(pos(1.5, 0, 0), 0);
+    assertThat(n.faces[1].minus, is(tree));
+    assertThat(n, is(tree.faces[3].plus));
+    n = tree.getOctreeAtPosition(pos(0, 0, 1.5), 0);
+    assertThat(n.faces[2].minus, is(tree));
+    assertThat(n, is(tree.faces[4].plus));
+  }
+  
+  @Test public void neighbours_inherited_correctly_from_grandparent() {
+    VoxelOctree tree = createOctree();
+    VoxelOctree parent = tree.generateOctreeWithChild(0);
+    assertChildrenCorrectlyConnected(parent);
+    parent = parent.generateOctreeWithChild(1);
+    assertChildrenCorrectlyConnected(parent);
+    parent.children[0].divide();
+    assertThat(parent.children[0].children[1].east().depth, is(tree.depth));
+  }
+  
   private void assertChildrenCorrectlyConnected(VoxelOctree tree) {
     VoxelOctree cell = tree.children[0];
     assertThat(cell.down(), is(tree.children[4]));
@@ -57,13 +111,6 @@ public class VoxelOctreeTest {
     assertThat(cell.up(), is(tree.children[2]));
     assertThat(cell.north(), is(tree.children[5]));
     assertThat(cell.west(), is(tree.children[7]));
-  }
-  
-  @Test public void neighbour_loop_returns_to_itself() {
-    VoxelOctree tree = createOctree();
-    tree.divideAllToLevel(3);
-    VoxelOctree cell = tree.children[0].children[0];
-    assertThat(cell.down().east().up().west(), is(cell));
   }
     
   private void assertCorrectlyConnected(VoxelOctree tree) {
