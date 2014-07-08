@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Singleton;
 import com.jme3.asset.AssetManager;
@@ -43,7 +44,8 @@ public class OctreeManager {
   }
 
   private List<Geometry> generate(VoxelOctree octree) {
-    List<Geometry> geometries = octreeSurfaceMeshGenerator.generate(octree, assetManager);
+    List<Geometry> geometries = Lists.newArrayList(); 
+    geometries.addAll(octreeSurfaceMeshGenerator.generate(octree, assetManager));
     geometries.addAll(octreeFaceSegmentGeometryGenerator.generate(octree, assetManager));
     return geometries;
   }

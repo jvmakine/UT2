@@ -267,6 +267,36 @@ public final class VoxelOctree {
       div[0][0] = faces[0];
       div[1][3] = faces[3];
       div[2][3] = faces[4];
+    } else if (index == 5) {
+      // extend existing faces
+      box[5] = faces[5].generateParent(1, function);
+      box[2] = faces[2].generateParent(2, function);
+      box[3] = faces[3].generateParent(3, function);
+      // generate new corner
+      Position d = box[2].edges[0].edgeVector();
+      Position np = substract(box[3].edges[0].plus.position, d);
+      VoxelNode nn = new VoxelNode(np, function);
+      mid = faces[4].edges[0].minus;
+      // Make new outer edges
+      VoxelEdge[] e = { 
+        edge(nn, box[5].edges[2].minus, function),
+        edge(box[2].edges[0].minus, nn, function),
+        edge(nn, box[3].edges[0].plus, function) };
+      // make new outer faces
+      box[0] = face(box[2].edges[0], box[3].edges[0], e[2], e[1]);
+      box[0].divide(function);
+      box[1] = face(box[0].edges[3], e[0], box[5].edges[3], box[2].edges[3]);
+      box[1].divide(function);
+      box[4] = face(box[0].edges[2], box[3].edges[1], box[5].edges[2], box[1].edges[1]);
+      box[4].divide(function);
+      // existing dividing edges
+      dive[2] = faces[0].edges[3];
+      dive[3] = faces[0].edges[2];
+      dive[5] = faces[1].edges[1];
+      // existing dividing faces
+      div[0][1] = faces[0];
+      div[1][3] = faces[1];
+      div[2][2] = faces[4];
     }
     // make dividing edges
     if (dive[0] == null) dive[0] = edge(box[0].dividor, mid, function);
