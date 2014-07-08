@@ -49,10 +49,10 @@ public class OctreeManager {
     }
   }
 
-  private List<Geometry> generate(VoxelOctree octree) {
+  private List<Geometry> generate(VoxelOctree octree, int renderLevel) {
     List<Geometry> geometries = Lists.newArrayList(); 
-    geometries.addAll(octreeSurfaceMeshGenerator.generate(octree, assetManager));
-    geometries.addAll(octreeFaceSegmentGeometryGenerator.generate(octree, assetManager));
+    geometries.addAll(octreeSurfaceMeshGenerator.generate(renderLevel, octree, assetManager));
+    //geometries.addAll(octreeFaceSegmentGeometryGenerator.generate(renderLevel, octree, assetManager));
     return geometries;
   }
   
@@ -97,11 +97,11 @@ public class OctreeManager {
             if (n == null) continue;
             OctreeMesh m = geometryMap.get(n);
             if (m != null && m.renderLevel < level) {
-              OctreeMesh newMesh = new OctreeMesh(n, generate(n), m.renderLevel);
+              OctreeMesh newMesh = new OctreeMesh(n, generate(n, m.renderLevel), m.renderLevel);
               attach(newMesh);
             }
           }
-          OctreeMesh m = new OctreeMesh(tree, generate(tree), level);
+          OctreeMesh m = new OctreeMesh(tree, generate(tree, level), level);
           attach(m);
         }
       }

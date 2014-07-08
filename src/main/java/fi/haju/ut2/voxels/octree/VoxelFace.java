@@ -186,7 +186,7 @@ public class VoxelFace {
     }
   }
   
-  private final List<FaceSegment> getFaceSegements() {
+  public final List<FaceSegment> getFaceSegements() {
     int index = calculateConnectionIndex();
     switch(index) {
     // No segments

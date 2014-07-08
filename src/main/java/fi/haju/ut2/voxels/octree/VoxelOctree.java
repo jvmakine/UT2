@@ -459,7 +459,7 @@ public final class VoxelOctree {
       }
     }
   }
-
+  
   private final VoxelNode node(Position pos) {
     return VoxelNode.node(pos, function);
   }

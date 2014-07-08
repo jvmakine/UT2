@@ -8,5 +8,5 @@ import com.jme3.scene.Geometry;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 
 public interface OctreeGeometryGenerator {
-  List<Geometry> generate(VoxelOctree octree, AssetManager assetManager);
+  List<Geometry> generate(int renderLevel, VoxelOctree octree, AssetManager assetManager);
 }

@@ -24,15 +24,15 @@ import fi.haju.ut2.voxels.octree.VoxelOctree;
 @Singleton
 public class OctreeFaceSegmentGeometryGenerator implements OctreeGeometryGenerator {
    
-  public List<Geometry> generate(VoxelOctree root, AssetManager assetManager) {
+  public List<Geometry> generate(int renderLevel, VoxelOctree root, AssetManager assetManager) {
     Set<FaceSegment> segments = Sets.newHashSet();
     Queue<VoxelOctree> tbp = Queues.newArrayDeque();
     tbp.add(root);
     while (!tbp.isEmpty()) {
       VoxelOctree octree = tbp.remove();
-      if (octree.children == null) {
+      if (octree.children == null || octree.depth >= renderLevel) {
         for (VoxelFace face : octree.faces) {
-          segments.addAll(face.getMostDetailedSegments());
+          segments.addAll(face.getFaceSegements());
         }
       }
       if (octree.children != null) {

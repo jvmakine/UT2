@@ -181,15 +181,9 @@ public final class OctreeConstructionUtils {
         }
       }
     }
-    // Reverse components if they are facing the wrong way
     for(OctreeComponent component : components) {
       component.centralPoint = PositionWithNormal.average(component.vertices);
-      Position p1 = Position.substract(component.vertices.get(0).position, component.vertices.get(1).position);
-      Position p2 = Position.substract(component.vertices.get(2).position, component.vertices.get(1).position);
-      Position norm = Position.cross(p1, p2);
-      if (Position.dot(norm, component.vertices.get(1).normal) > 0) {
-        component.vertices = Lists.newLinkedList(Lists.reverse(component.vertices));
-      }
+     //TODO: Reverse components if they are facing the wrong way, cull back faces
     }
     if (endPoints.size() > 0) {
       //log.warning("no component for " + endPoints.size() + " endpoints, generated " + components.size() + " components");

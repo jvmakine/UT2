@@ -119,7 +119,7 @@ public final class Position {
     for (int x = 0; x < 2*s + 1; ++x) {
       for (int y = 0; y < 2*s + 1; ++y) {
         for (int z = 0; z < 2*s + 1; ++z) {
-          if ((x != 0 && x != s) && (y != 0 && y != s) && (z != 0 && z != s)) continue; // do not include inside points
+          if ((x != 0 && x != 2*s) && (y != 0 && y != 2*s) && (z != 0 && z != 2*s)) continue; // do not include inside points
           result.add(corner.add(pos(x*d, y*d, z*d)));
         }
       }

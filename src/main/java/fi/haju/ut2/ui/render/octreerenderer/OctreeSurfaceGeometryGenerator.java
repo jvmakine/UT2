@@ -12,6 +12,7 @@ import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -26,13 +27,13 @@ public class OctreeSurfaceGeometryGenerator implements OctreeGeometryGenerator {
   
   private Logger log = Logger.getLogger(this.getClass().getName());
 
-  private Set<OctreeComponent> collectComponents(VoxelOctree root) {
+  private Set<OctreeComponent> collectComponents(VoxelOctree root, int renderLevel) {
     Set<OctreeComponent> components = Sets.newHashSet();
     Queue<VoxelOctree> tbp = Queues.newArrayDeque();
     tbp.add(root);
     while (!tbp.isEmpty()) {
       VoxelOctree octree = tbp.remove();
-      if(octree.children == null) {
+      if(octree.children == null || octree.depth >= renderLevel) {
         components.addAll(octree.components);
       } else { 
         for(VoxelOctree child : octree.children) {
@@ -46,9 +47,9 @@ public class OctreeSurfaceGeometryGenerator implements OctreeGeometryGenerator {
   }
 
   @Override
-  public List<Geometry> generate(VoxelOctree octree, AssetManager assetManager) {
+  public List<Geometry> generate(int renderLevel, VoxelOctree octree, AssetManager assetManager) {
     log.info("starting octree mesh construction");
-    Set<OctreeComponent> components = collectComponents(octree);
+    Set<OctreeComponent> components = collectComponents(octree, renderLevel);
     Mesh m = new Mesh();
     int vertices = 0;
     int triangles = 0;
@@ -99,8 +100,10 @@ public class OctreeSurfaceGeometryGenerator implements OctreeGeometryGenerator {
     Geometry surface = new Geometry("surface", m);
     Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
     mat.setBoolean("UseMaterialColors", true);
-    mat.setColor("Ambient", new ColorRGBA(1, 1, 1, 1));
-    mat.setColor("Diffuse",  new ColorRGBA(1, 1, 1, 1));
+    mat.setColor("Ambient", new ColorRGBA(0.8f, 0.8f, 0.8f, 1));
+    mat.setColor("Diffuse",  new ColorRGBA(0.8f, 0.8f, 0.8f, 1));
+    // TODO: Reverse components if they are facing the wrong way, cull back faces
+    mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off);
     surface.setMaterial(mat);
     log.info("octree mesh construction done");
     return Lists.newArrayList(surface);
