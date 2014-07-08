@@ -34,9 +34,18 @@ public class OctreeManager {
   }
 
   private void attach(OctreeMesh mesh) {
+    List<Geometry> toBeDetached = null;
+    if (geometryMap.containsKey(mesh.octree)) {
+      toBeDetached = geometryMap.get(mesh.octree).geometries;
+    }
     geometryMap.put(mesh.octree, mesh);
     for(Geometry geometry : mesh.geometries) {
       game.addGeometry(geometry);
+    }
+    if (toBeDetached != null) {
+      for(Geometry geometry : toBeDetached) {
+        game.removeGeometry(geometry);
+      } 
     }
   }
 
@@ -45,16 +54,6 @@ public class OctreeManager {
     geometries.addAll(octreeSurfaceMeshGenerator.generate(octree, assetManager));
     geometries.addAll(octreeFaceSegmentGeometryGenerator.generate(octree, assetManager));
     return geometries;
-  }
-
-  private void detach(VoxelOctree octree) {
-    OctreeMesh oldMesh = geometryMap.get(octree);
-    geometryMap.remove(octree);
-    if (oldMesh != null) {
-      for (Geometry geometry : oldMesh.geometries) {
-        game.removeGeometry(geometry);
-      }
-    }
   }
   
   public void setup(AssetManager assetManager) {
@@ -74,23 +73,36 @@ public class OctreeManager {
             throw new RuntimeException(e);
           }
           if (focus == null) continue;
-          List<Position> positions = Lists.newArrayList();
           Position pos = focus;
-          positions.add(pos);
-          positions.addAll(pos.centeredEmptyCube(d));
-          for (Position p : positions) {
-            VoxelOctree tree = octree.getOctreeAtPosition(p, 0);
-            OctreeMesh old = geometryMap.get(tree);
-            if (old != null && old.renderLevel != 5) {
-              detach(tree);
-              old = null;
-            }
-            if (old == null) {
-              tree.divideAllToLevel(5);
-              OctreeMesh m = new OctreeMesh(tree, generate(tree), 5);
-              attach(m);
+          updateLod(4,pos);
+          for (Position p : pos.centeredEmptyCube(d, 1)) { updateLod(4, p); }
+          for (Position p : pos.centeredEmptyCube(d, 2)) { updateLod(3, p); }
+          for (Position p : pos.centeredEmptyCube(d, 3)) { updateLod(3, p); }
+          for (Position p : pos.centeredEmptyCube(d, 4)) { updateLod(2, p); }
+          for (Position p : pos.centeredEmptyCube(d, 5)) { updateLod(2, p); }
+          for (Position p : pos.centeredEmptyCube(d, 6)) { updateLod(2, p); }
+        }
+      }
+
+      private void updateLod(int level, Position p) {
+        VoxelOctree tree = octree.getOctreeAtPosition(p, 0);
+        OctreeMesh old = geometryMap.get(tree);
+        if (old != null && old.renderLevel != level) {
+          old = null;
+        }
+        if (old == null) {
+          tree.divideAllToLevel(level);
+          List<VoxelOctree> neighbours = tree.neighbours();
+          for (VoxelOctree n : neighbours) {
+            if (n == null) continue;
+            OctreeMesh m = geometryMap.get(n);
+            if (m != null && m.renderLevel < level) {
+              OctreeMesh newMesh = new OctreeMesh(n, generate(n), m.renderLevel);
+              attach(newMesh);
             }
           }
+          OctreeMesh m = new OctreeMesh(tree, generate(tree), level);
+          attach(m);
         }
       }
     });

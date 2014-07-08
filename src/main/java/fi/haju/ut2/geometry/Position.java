@@ -112,13 +112,14 @@ public final class Position {
     return sqrt(x*x + y*y + z*z);
   }
 
-  public List<Position> centeredEmptyCube(double d) {
+  public List<Position> centeredEmptyCube(double d, int s) {
+    //TODO: More efficient implementation
     List<Position> result = Lists.newArrayList();
-    Position corner = add(pos(-d,-d,-d));
-    for (int x = 0; x < 3; ++x) {
-      for (int y = 0; y < 3; ++y) {
-        for (int z = 0; z < 3; ++z) {
-          if (x == 1 && y == 1 && z == 1) continue; // do not include center point
+    Position corner = add(pos(-d*s,-d*s,-d*s));
+    for (int x = 0; x < 2*s + 1; ++x) {
+      for (int y = 0; y < 2*s + 1; ++y) {
+        for (int z = 0; z < 2*s + 1; ++z) {
+          if ((x != 0 && x != s) && (y != 0 && y != s) && (z != 0 && z != s)) continue; // do not include inside points
           result.add(corner.add(pos(x*d, y*d, z*d)));
         }
       }

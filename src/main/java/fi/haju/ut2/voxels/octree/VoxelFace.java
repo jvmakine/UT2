@@ -24,8 +24,6 @@ public class VoxelFace {
   public VoxelEdge[] edges = new VoxelEdge[4];
   public VoxelOctree plus;
   public VoxelOctree minus;
-
-  private Set<FaceSegment> faceSegmentCache = null;
   
   public VoxelFace() {}
   
@@ -174,7 +172,6 @@ public class VoxelFace {
   
   public final void divide(Function3d function) {
     if(dividor != null) return;
-    clearCaches();
     dividor = node(average(edges[0].minus.position, edges[1].plus.position), function);
     for(int i = 0; i < 4; ++i) {
       edges[i].divide(function);
@@ -189,11 +186,6 @@ public class VoxelFace {
     }
   }
   
-  private void clearCaches() {
-    faceSegmentCache = null;
-    if(parent != null) parent.clearCaches();
-  }
- 
   private final List<FaceSegment> getFaceSegements() {
     int index = calculateConnectionIndex();
     switch(index) {
@@ -271,7 +263,7 @@ public class VoxelFace {
   }
 
   public Set<FaceSegment> getMostDetailedSegments() {
-    if (faceSegmentCache != null) return faceSegmentCache;
+    //TODO: Cache face segments. Now they are calculated multiple times for the same face
     Set<FaceSegment> result = Sets.newHashSet();
     Queue<VoxelFace> tbp = Queues.newArrayDeque();
     tbp.add(this);
@@ -283,7 +275,6 @@ public class VoxelFace {
         for(int i = 0; i < 4; ++i) tbp.add(face.children[i]);
       }
     }
-    faceSegmentCache = result;
     return result;
   }
 

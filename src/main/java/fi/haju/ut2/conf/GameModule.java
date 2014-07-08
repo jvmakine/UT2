@@ -15,10 +15,10 @@ public class GameModule extends AbstractModule {
   }
   
   private VoxelOctree octree() {
-    VoxelOctree result = new VoxelOctree(new Position(-8, -8, -8), 16,
+    VoxelOctree result = new VoxelOctree(new Position(-4, -4, -4), 8,
         new PerlinTerrainFunction()
     );
-    result.divideAllToLevel(5);
+    result.divideAllToLevel(4);
     return result;
   }
 
