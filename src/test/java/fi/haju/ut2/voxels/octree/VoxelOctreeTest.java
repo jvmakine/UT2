@@ -27,7 +27,7 @@ public class VoxelOctreeTest {
   }
   
   @Test public void parent_octree_has_correctly_connected_edges() {
-    for (int i = 0; i < 7; ++i) {
+    for (int i = 0; i < 8; ++i) {
       VoxelOctree tree = createOctree().generateOctreeWithChild(i);
       assertCorrectlyConnected(tree);
       assertCorrectlyConnected(tree.children[0]);
