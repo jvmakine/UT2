@@ -49,6 +49,7 @@ public class OctreeManager {
   }
 
   private List<Geometry> generate(VoxelOctree octree, int renderLevel) {
+    octree.compress();
     octree.calculateComponents();
     List<Geometry> geometries = Lists.newArrayList(); 
     geometries.addAll(octreeSurfaceMeshGenerator.generate(renderLevel, octree, assetManager));

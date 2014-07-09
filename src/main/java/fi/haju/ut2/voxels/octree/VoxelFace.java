@@ -278,4 +278,16 @@ public class VoxelFace {
     return result;
   }
 
+  public VoxelOctree other(VoxelOctree tree) {
+    if (minus == tree) return plus;
+    return minus;
+  }
+
+  public boolean hasFeature() {
+    for (int i = 0; i < 4; ++i) {
+      if (edges[i].vertex() != null) return true;
+    }
+    return false;
+  }
+
 }

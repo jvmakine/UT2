@@ -12,11 +12,6 @@ import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.voxels.functions.Function3d;
 import fi.haju.ut2.voxels.octree.utils.OctreeConstructionUtils;
 
-import static fi.haju.ut2.voxels.octree.VoxelFace.face;
-import static fi.haju.ut2.geometry.Position.add;
-import static fi.haju.ut2.geometry.Position.substract;
-import static fi.haju.ut2.voxels.octree.VoxelEdge.edge;
-
 /**
  * Restricted octree, the depth of neighbors may differ only by one
  * The faces of octree and edges of faces are indexed as described in voxel_cube.png
@@ -45,6 +40,42 @@ public final class VoxelOctree {
     return Position.average(faces[0].edges[0].minus.position, faces[5].edges[2].plus.position);
   }
   
+  public void compress() {
+   if (children == null) return;
+    if (!hasInternalFeatures()) {
+      children = null;
+      dividor = null;
+      for(int i = 0; i < 6; ++i) {
+        VoxelOctree n = faces[i].other(this);
+        if (n != null && n.children == null && !faces[i].hasFeature()) {
+          faces[i].children = null;
+          faces[i].dividor = null;
+        }
+      }
+    } else {
+      for (int i = 0; i < 8; ++i) {
+        children[i].compress();
+      }
+    }
+  }
+
+  public boolean hasEdgeFeatures() {
+    for (int i = 0; i < 6; ++i) {
+      if (faces[i].hasFeature()) return true;
+    }
+    return false;
+  }
+  
+  private boolean hasInternalFeatures() {
+    if(children[0].faces[5].edges[1].vertex() != null) return true;
+    if(children[0].faces[5].edges[2].vertex() != null) return true;
+    if(children[1].faces[5].edges[2].vertex() != null) return true;
+    if(children[3].faces[5].edges[1].vertex() != null) return true;
+    if(children[0].faces[3].edges[1].vertex() != null) return true;
+    if(children[4].faces[3].edges[1].vertex() != null) return true;
+    return false;
+  }
+  
   public void divideAllToLevel(int level) {
     Queue<VoxelOctree> tbp = Queues.newArrayDeque();
     tbp.add(this);
@@ -57,7 +88,7 @@ public final class VoxelOctree {
       }
     }
   }
-
+  
   public void setupFaces() {
     faces[0].plus = this;
     faces[1].plus = this;
