@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.jme3.system.AppSettings;
 
 import fi.haju.ut2.geometry.Position;
+import fi.haju.ut2.voxels.functions.SinoidalFunction;
 import fi.haju.ut2.voxels.functions.perlinnoise.PerlinTerrainFunction;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 

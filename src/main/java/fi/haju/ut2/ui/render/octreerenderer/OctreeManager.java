@@ -50,9 +50,9 @@ public class OctreeManager {
   }
 
   private List<Geometry> generate(VoxelOctree octree, int renderLevel) {
+    octree.calculateComponents();
     List<Geometry> geometries = Lists.newArrayList(); 
     geometries.addAll(octreeSurfaceMeshGenerator.generate(renderLevel, octree, assetManager));
-    //geometries.addAll(octreeFaceSegmentGeometryGenerator.generate(renderLevel, octree, assetManager));
     return geometries;
   }
   
@@ -83,30 +83,33 @@ public class OctreeManager {
           for (Position p : pos.centeredEmptyCube(d, 6)) { updateLod(2, p); }
         }
       }
-
-      private void updateLod(int level, Position p) {
-        VoxelOctree tree = octree.getOctreeAtPosition(p, 0);
-        OctreeMesh old = geometryMap.get(tree);
-        if (old != null && old.renderLevel != level) {
-          old = null;
-        }
-        if (old == null) {
-          tree.divideAllToLevel(level);
-          List<VoxelOctree> neighbours = tree.neighbours();
-          for (VoxelOctree n : neighbours) {
-            if (n == null) continue;
-            OctreeMesh m = geometryMap.get(n);
-            if (m != null && m.renderLevel < level) {
-              OctreeMesh newMesh = new OctreeMesh(n, generate(n, m.renderLevel), m.renderLevel);
-              attach(newMesh);
-            }
-          }
-          OctreeMesh m = new OctreeMesh(tree, generate(tree, level), level);
-          attach(m);
-        }
-      }
     });
     updater.start();
+  }
+  
+  private void updateLod(int level, Position p) {
+    VoxelOctree tree = octree.getOctreeAtPosition(p, 0);
+    OctreeMesh old = geometryMap.get(tree);
+    if (old != null && old.renderLevel != level) {
+      old = null;
+    }
+    if (old == null) {
+      tree.divideAllToLevel(level);
+      updateLowerLevelNeighbours(level, tree);
+      OctreeMesh m = new OctreeMesh(tree, generate(tree, level), level);
+      attach(m);
+    }
+  }
+
+  private void updateLowerLevelNeighbours(int level, VoxelOctree tree) {
+    for (VoxelOctree n : tree.neighbours()) {
+      if (n == null) continue;
+      OctreeMesh m = geometryMap.get(n);
+      if (m != null && m.renderLevel < level) {
+        OctreeMesh newMesh = new OctreeMesh(n, generate(n, m.renderLevel), m.renderLevel);
+        attach(newMesh);
+      }
+    }
   }
   
   public void stop() {

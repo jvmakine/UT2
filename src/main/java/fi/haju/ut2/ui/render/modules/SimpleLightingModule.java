@@ -9,15 +9,12 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
-import com.jme3.shadow.DirectionalLightShadowRenderer;
-import com.jme3.shadow.EdgeFilteringMode;
 
 @Singleton
 public class SimpleLightingModule {
   
   private DirectionalLight directionalLight;
   private AmbientLight ambientLight;
-  private DirectionalLightShadowRenderer dlsr;
   
   public SimpleLightingModule() {
     directionalLight = new DirectionalLight();
@@ -32,12 +29,6 @@ public class SimpleLightingModule {
   public void setup(Node rootNode, AssetManager assetManager, ViewPort viewPort) {
     rootNode.addLight(directionalLight);
     rootNode.addLight(ambientLight);
-
-    dlsr = new DirectionalLightShadowRenderer(assetManager, 2048, 4);
-    dlsr.setLight(directionalLight);
-    dlsr.setShadowIntensity(0.4f);
-    dlsr.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
-    viewPort.addProcessor(dlsr);
   }
   
 }

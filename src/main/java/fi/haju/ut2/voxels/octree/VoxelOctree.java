@@ -39,7 +39,6 @@ public final class VoxelOctree {
     depth = 0;
     faces = OctreeConstructionUtils.createInitialFaces(upperLeftBackCorner, side, function);
     setupFaces();
-    calculateComponents();
   }
   
   public Position center() {
@@ -78,10 +77,6 @@ public final class VoxelOctree {
       children[i].parent = this;
       children[i].function = function;
       children[i].setupFaces();
-    }
-    calculateComponents();
-    for(VoxelOctree n : neighbours()) {
-      if(n != null) n.calculateComponents();
     }
   }
   
@@ -428,13 +423,7 @@ public final class VoxelOctree {
     div[2][1].setSides(parent.children[1], parent.children[2]);
     div[2][2].setSides(parent.children[5], parent.children[6]);
     div[2][3].setSides(parent.children[4], parent.children[7]);
-      
-    for (int i = 0; i < 8; ++i) {
-      if (i != index) {
-        parent.children[i].calculateComponents();
-      }
-    }
-      
+            
     return parent;
   }
 

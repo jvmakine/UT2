@@ -7,7 +7,7 @@ public class PerlinTerrainFunction extends GradientApproximatedFunction {
   private PerlinNoiseGenerator generator = new PerlinNoiseGenerator(4, 1, 12345);
   
   @Override public double value(double x, double y, double z) {
-    return generator.getValueAt(x, y, z) - y*2;
+    return generator.getValueAt(x, y, z);
   }
 
 }

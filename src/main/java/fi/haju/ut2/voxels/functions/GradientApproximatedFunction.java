@@ -7,7 +7,7 @@ public abstract class GradientApproximatedFunction implements Function3d {
   @Override public abstract double value(double x, double y, double z);
 
   @Override public Position gradient(double x, double y, double z) {
-    double d = 0.01;
+    double d = 0.001;
     double xm = value(x-d, y, z);
     double xp = value(x+d, y, z);
     double ym = value(x, y-d, z);
