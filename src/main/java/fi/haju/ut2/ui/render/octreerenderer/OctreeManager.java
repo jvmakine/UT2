@@ -19,7 +19,6 @@ import fi.haju.ut2.voxels.octree.VoxelOctree;
 public class OctreeManager {
   
   @Inject private OctreeSurfaceGeometryGenerator octreeSurfaceMeshGenerator;
-  @Inject private OctreeFaceSegmentGeometryGenerator octreeFaceSegmentGeometryGenerator;
   @Inject private VoxelOctree octree;
   @Inject private Game game;
   

@@ -34,6 +34,7 @@ public class Game extends SimpleApplication {
     lightingModule.setup(rootNode, assetManager, viewPort);
     octreeRenderManager.setup(assetManager);
     octreeRenderManager.start();
+    getFlyByCamera().setMoveSpeed(5);
   }
 
   @Override public void simpleUpdate(float tpf) {
