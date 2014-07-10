@@ -49,38 +49,4 @@ public class Vector3i implements Serializable {
     return true;
   }
 
-  public Vector3i add(int x, int y, int z) {
-    return new Vector3i(this.x + x, this.y + y, this.z + z);
-  }
-
-  public Vector3i subtract(int x, int y, int z) {
-    return new Vector3i(this.x - x, this.y - y, this.z - z);
-  }
-
-  public int distanceTo(Vector3i other) {
-    return Math.abs(other.x - x) + Math.abs(other.y - y) + Math.abs(other.z - z);
-  }
-
-  @Override
-  public String toString() {
-    return "[" + x + "," + y + "," + z + "]";
-  }
-
-  public Vector3i add(Vector3i v) {
-    return add(v.x, v.y, v.z);
-  }
-  
-  public Vector3i mult(int multiplier) {
-    return new Vector3i(x*multiplier, y*multiplier, z*multiplier);
-  }
-
-  public Vector3i subtract(Vector3i v) {
-    return subtract(v.x, v.y, v.z);
-  }
-
-  public void set(int x, int y, int z) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-  }
 }
