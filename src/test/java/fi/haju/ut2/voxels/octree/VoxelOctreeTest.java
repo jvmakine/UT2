@@ -1,17 +1,35 @@
 package fi.haju.ut2.voxels.octree;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import fi.haju.ut2.voxels.functions.SinoidalFunction;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 import static fi.haju.ut2.geometry.Position.pos;
-
 import static fi.haju.ut2.voxels.octree.VoxelFaceTest.assertFaceCorrectlyConnected;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
 
 public class VoxelOctreeTest {
 
+  @Test public void correctly_detects_overlaps_with_sphere() {
+    VoxelOctree tree = new VoxelOctree(pos(0,0,0), 50, new SinoidalFunction());
+    assertThat(tree.overlapsSphere(pos(100,50,50), 40), is(false));    
+    assertThat(tree.overlapsSphere(pos(100,50,50), 60), is(true));
+    assertThat(tree.overlapsSphere(pos(10,10,10), 3), is(true));
+  }
+  
+  @Test public void returns_octrees_in_sphere() {
+    VoxelOctree tree = new VoxelOctree(pos(0,0,0), 5, new SinoidalFunction());
+    List<VoxelOctree> result = tree.treesInSphere(pos(0,0,0), 10.0, 2);
+    assertThat(result.size(), greaterThan(0));
+    for (VoxelOctree res : result) {
+      assertThat(res.overlapsSphere(pos(0,0,0), 10.0), is(true));
+    }
+  }
+  
   @Test public void divided_octree_has_correctly_connected_edges() {
     VoxelOctree tree = createOctree();
     tree.divide();

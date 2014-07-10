@@ -40,6 +40,79 @@ public final class VoxelOctree {
     return Position.average(faces[0].edges[0].minus.position, faces[5].edges[2].plus.position);
   }
   
+  public List<VoxelOctree> treesInSphere(Position center, double radius, int level) {
+    VoxelOctree tree = findTreeContainingSphere(center, radius);
+    Queue<VoxelOctree> tbp = Queues.newArrayDeque();
+    tbp.add(tree);
+    List<VoxelOctree> result = Lists.newArrayList();
+    while (!tbp.isEmpty()) {
+      VoxelOctree cell = tbp.remove();
+      if (cell.depth >= level) {
+        result.add(cell);
+        continue;
+      }
+      if (cell.children == null) cell.divide();
+      for (int i = 0; i < 8; ++i) {
+        if (cell.children[i].overlapsSphere(center, radius)) {
+          tbp.add(cell.children[i]);
+        }
+      }
+    }
+    return result;
+  }
+  
+  private VoxelOctree findTreeContainingSphere(Position center, double radius) {
+    VoxelOctree tree = this;
+    while (true) {
+      if (tree.isSphereInside(center, radius)) return tree;
+      if (tree.parent != null) {
+        tree = tree.parent;
+      } else {
+        double xm = tree.faces[1].edges[0].minus.position.x;
+        double xp = tree.faces[3].edges[0].minus.position.x;
+        double ym = tree.faces[0].edges[0].minus.position.y;
+        double yp = tree.faces[5].edges[0].minus.position.y;
+        double zm = tree.faces[2].edges[0].minus.position.z;
+        double zp = tree.faces[4].edges[0].minus.position.z;
+        
+        if (center.x - radius < xm) { tree.parent = tree.generateOctreeWithChild(1); tree = tree.parent; }  
+        else if (center.x + radius > xp) { tree.parent = tree.generateOctreeWithChild(0); tree = tree.parent; }
+        else if (center.y - radius < ym) { tree.parent = tree.generateOctreeWithChild(4); tree = tree.parent; }
+        else if (center.y + radius > yp) { tree.parent = tree.generateOctreeWithChild(0); tree = tree.parent; }
+        else if (center.z - radius < zm) { tree.parent = tree.generateOctreeWithChild(3); tree = tree.parent; }
+        else if (center.z + radius > zp) { tree.parent = tree.generateOctreeWithChild(0); tree = tree.parent; }
+        else throw new IllegalStateException();
+      }
+    }
+  }
+
+  public boolean overlapsSphere(Position center, double radius) {
+    Position c1 = faces[0].edges[0].minus.position;
+    Position c2 = faces[4].edges[2].plus.position;
+    double dist_squared = radius * radius;
+    if (center.x < c1.x) dist_squared -= (center.x - c1.x)*(center.x - c1.x);
+    else if (center.x > c2.x) dist_squared -= (center.x - c2.x)*(center.x - c2.x);
+    if (center.y < c1.y) dist_squared -= (center.y - c1.y)*(center.y - c1.y);
+    else if (center.y > c2.y) dist_squared -= (center.y - c2.y)*(center.y - c2.y);
+    if (center.z < c1.z) dist_squared -= (center.z - c1.z)*(center.z - c1.z);
+    else if (center.z > c2.z) dist_squared -= (center.z - c2.z)*(center.z - c2.z);
+    return dist_squared > 0;
+  }
+  
+  private boolean isSphereInside(Position center, double radius) {
+    double xm = faces[1].edges[0].minus.position.x;
+    double xp = faces[3].edges[0].minus.position.x;
+    double ym = faces[0].edges[0].minus.position.y;
+    double yp = faces[5].edges[0].minus.position.y;
+    double zm = faces[2].edges[0].minus.position.z;
+    double zp = faces[4].edges[0].minus.position.z;
+    
+    if (center.x - radius <= xm || center.x + radius >= xp) return false;
+    if (center.y - radius <= ym || center.y + radius >= yp) return false;
+    if (center.z - radius <= zm || center.z + radius >= zp) return false;
+    return true;
+  }
+
   public void compress() {
    if (children == null) return;
     if (!hasInternalFeatures()) {

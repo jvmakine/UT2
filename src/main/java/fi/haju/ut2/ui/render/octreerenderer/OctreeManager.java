@@ -1,12 +1,14 @@
 package fi.haju.ut2.ui.render.octreerenderer;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.inject.Inject;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.inject.Singleton;
 import com.jme3.asset.AssetManager;
 import com.jme3.scene.Geometry;
@@ -65,7 +67,6 @@ public class OctreeManager {
     updater = new Thread(new Runnable() {
       @Override
       public void run() {
-        double d = octree.edgeLength();
         while (updaterRunning) {
           try {
             Thread.sleep(100);
@@ -74,21 +75,37 @@ public class OctreeManager {
           }
           if (focus == null) continue;
           Position pos = focus;
-          updateLod(4,pos);
-          for (Position p : pos.centeredEmptyCube(d, 1)) { updateLod(4, p); }
-          for (Position p : pos.centeredEmptyCube(d, 2)) { updateLod(3, p); }
-          for (Position p : pos.centeredEmptyCube(d, 3)) { updateLod(3, p); }
-          for (Position p : pos.centeredEmptyCube(d, 4)) { updateLod(2, p); }
-          for (Position p : pos.centeredEmptyCube(d, 5)) { updateLod(2, p); }
-          for (Position p : pos.centeredEmptyCube(d, 6)) { updateLod(2, p); }
+          Set<VoxelOctree> processed = Sets.newHashSet();
+          List<VoxelOctree> trees = octree.treesInSphere(pos, 20.0, 0);
+          for (VoxelOctree tree : trees) {
+            updateTreeMesh(4, tree);
+          }
+          processed.addAll(trees);
+          trees = octree.treesInSphere(pos, 40.0, 0);
+          for (VoxelOctree tree : trees) {
+            if(!processed.contains(tree)) updateTreeMesh(3, tree);
+          }
+          processed.addAll(trees);
+          trees = octree.treesInSphere(pos, 80.0, 0);
+          for (VoxelOctree tree : trees) {
+            if(!processed.contains(tree)) updateTreeMesh(2, tree);
+          }
+          processed.addAll(trees);
+          for (VoxelOctree tree : geometryMap.keySet()) {
+            if (!processed.contains(tree)) {
+              for (Geometry g : geometryMap.get(tree).geometries) {
+                game.removeGeometry(g);
+              }
+              geometryMap.remove(tree);
+            }
+          }
         }
       }
     });
     updater.start();
   }
   
-  private void updateLod(int level, Position p) {
-    VoxelOctree tree = octree.getOctreeAtPosition(p, 0);
+  private void updateTreeMesh(int level, VoxelOctree tree) {
     OctreeMesh old = geometryMap.get(tree);
     if (old != null && old.renderLevel != level) {
       old = null;
