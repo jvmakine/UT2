@@ -1,5 +1,7 @@
 package fi.haju.ut2.ui.render.octreerenderer;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
@@ -16,6 +18,8 @@ import com.jme3.scene.Geometry;
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.ui.Game;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
+
+import static fi.haju.ut2.geometry.Position.distance;
 
 @Singleton
 public class OctreeManager {
@@ -76,9 +80,9 @@ public class OctreeManager {
           if (focus == null) continue;
           Position pos = focus;
           Set<VoxelOctree> processed = Sets.newHashSet();
-          processUnprocessedTrees(processed, octree.treesInSphere(pos, 20.0, 0), 4);
-          processUnprocessedTrees(processed, octree.treesInSphere(pos, 40.0, 0), 3);
-          processUnprocessedTrees(processed, octree.treesInSphere(pos, 80.0, 0), 2);
+          processUnprocessedTrees(processed, octree.treesInSphere(pos, 20.0, 0), 4, pos);
+          processUnprocessedTrees(processed, octree.treesInSphere(pos, 40.0, 0), 3, pos);
+          processUnprocessedTrees(processed, octree.treesInSphere(pos, 80.0, 0), 2, pos);
           removeGeometriesNotInSet(processed);
         }
       }
@@ -97,7 +101,12 @@ public class OctreeManager {
     }
   }
   
-  private void processUnprocessedTrees(Set<VoxelOctree> processed, List<VoxelOctree> trees, int level) {
+  private void processUnprocessedTrees(Set<VoxelOctree> processed, List<VoxelOctree> trees, int level, final Position focus) {
+    Collections.sort(trees, new Comparator<VoxelOctree>() {
+      @Override public int compare(VoxelOctree o1, VoxelOctree o2) {
+        return Double.compare(distance(focus, o1.center()), distance(focus, o2.center()));
+      }
+    });
     for (VoxelOctree tree : trees) {
       if(!processed.contains(tree)) updateTreeMesh(level, tree);
     }
