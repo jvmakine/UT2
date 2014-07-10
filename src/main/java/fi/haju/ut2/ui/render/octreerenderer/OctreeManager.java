@@ -76,33 +76,32 @@ public class OctreeManager {
           if (focus == null) continue;
           Position pos = focus;
           Set<VoxelOctree> processed = Sets.newHashSet();
-          List<VoxelOctree> trees = octree.treesInSphere(pos, 20.0, 0);
-          for (VoxelOctree tree : trees) {
-            updateTreeMesh(4, tree);
-          }
-          processed.addAll(trees);
-          trees = octree.treesInSphere(pos, 40.0, 0);
-          for (VoxelOctree tree : trees) {
-            if(!processed.contains(tree)) updateTreeMesh(3, tree);
-          }
-          processed.addAll(trees);
-          trees = octree.treesInSphere(pos, 80.0, 0);
-          for (VoxelOctree tree : trees) {
-            if(!processed.contains(tree)) updateTreeMesh(2, tree);
-          }
-          processed.addAll(trees);
-          for (VoxelOctree tree : geometryMap.keySet()) {
-            if (!processed.contains(tree)) {
-              for (Geometry g : geometryMap.get(tree).geometries) {
-                game.removeGeometry(g);
-              }
-              geometryMap.remove(tree);
-            }
-          }
+          processUnprocessedTrees(processed, octree.treesInSphere(pos, 20.0, 0), 4);
+          processUnprocessedTrees(processed, octree.treesInSphere(pos, 40.0, 0), 3);
+          processUnprocessedTrees(processed, octree.treesInSphere(pos, 80.0, 0), 2);
+          removeGeometriesNotInSet(processed);
         }
       }
     });
     updater.start();
+  }
+  
+  private void removeGeometriesNotInSet(Set<VoxelOctree> processed) {
+    for (VoxelOctree tree : geometryMap.keySet()) {
+      if (!processed.contains(tree)) {
+        for (Geometry g : geometryMap.get(tree).geometries) {
+          game.removeGeometry(g);
+        }
+        geometryMap.remove(tree);
+      }
+    }
+  }
+  
+  private void processUnprocessedTrees(Set<VoxelOctree> processed, List<VoxelOctree> trees, int level) {
+    for (VoxelOctree tree : trees) {
+      if(!processed.contains(tree)) updateTreeMesh(level, tree);
+    }
+    processed.addAll(trees);
   }
   
   private void updateTreeMesh(int level, VoxelOctree tree) {
