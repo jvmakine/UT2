@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.junit.Test;
 
+import fi.haju.ut2.voxels.functions.GradientApproximatedFunction;
 import fi.haju.ut2.voxels.functions.SinoidalFunction;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 import static fi.haju.ut2.geometry.Position.pos;
 import static fi.haju.ut2.voxels.octree.VoxelFaceTest.assertFaceCorrectlyConnected;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 
 public class VoxelOctreeTest {
@@ -19,6 +21,20 @@ public class VoxelOctreeTest {
     assertThat(tree.overlapsSphere(pos(100,50,50), 40), is(false));    
     assertThat(tree.overlapsSphere(pos(100,50,50), 60), is(true));
     assertThat(tree.overlapsSphere(pos(10,10,10), 3), is(true));
+  }
+  
+  @Test public void empty_octree_is_compressed_correctly() {
+    VoxelOctree tree = new VoxelOctree(pos(0,0,0), 5, new GradientApproximatedFunction() {
+      @Override public double value(double x, double y, double z) {
+        return -1;
+      }
+    });
+    tree.divideAllToLevel(3);
+    tree.compress();
+    assertThat(tree.children, is(nullValue()));
+    for (int i = 0; i < 6; ++i) {
+      assertThat(tree.faces[i].children, is(nullValue()));
+    }
   }
   
   @Test public void returns_octrees_in_sphere() {

@@ -120,7 +120,7 @@ public final class VoxelOctree {
       dividor = null;
       for(int i = 0; i < 6; ++i) {
         VoxelOctree n = faces[i].other(this);
-        if (n != null && n.children == null && !faces[i].hasFeature()) {
+        if ((n == null || n.children == null) && !faces[i].hasFeature()) {
           faces[i].children = null;
           faces[i].dividor = null;
         }
