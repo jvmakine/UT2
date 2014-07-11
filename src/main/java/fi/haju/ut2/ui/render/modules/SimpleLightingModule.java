@@ -28,7 +28,7 @@ public class SimpleLightingModule {
   
   public void setup(Node rootNode, AssetManager assetManager, ViewPort viewPort) {
     rootNode.addLight(directionalLight);
-    rootNode.addLight(ambientLight);
+    rootNode.addLight(ambientLight);    
   }
   
 }

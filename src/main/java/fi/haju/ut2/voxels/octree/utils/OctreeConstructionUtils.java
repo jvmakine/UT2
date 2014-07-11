@@ -511,9 +511,6 @@ public final class OctreeConstructionUtils {
       component.centralPoint = PositionWithNormal.average(component.vertices);
      //TODO: Reverse components if they are facing the wrong way, cull back faces
     }
-    if (endPoints.size() > 0) {
-      //log.warning("no component for " + endPoints.size() + " endpoints, generated " + components.size() + " components");
-    }
     return components;
   }
   
