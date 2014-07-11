@@ -18,7 +18,6 @@ import com.jme3.scene.Geometry;
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.ui.Game;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
-
 import static fi.haju.ut2.geometry.Position.distance;
 
 @Singleton
@@ -54,7 +53,7 @@ public class OctreeManager {
     }
   }
 
-  private List<Geometry> generate(VoxelOctree octree, int renderLevel) {
+  public List<Geometry> generate(VoxelOctree octree, int renderLevel) {
     octree.compress();
     octree.calculateComponents();
     List<Geometry> geometries = Lists.newArrayList(); 
@@ -79,15 +78,19 @@ public class OctreeManager {
           }
           if (focus == null) continue;
           Position pos = focus;
-          Set<VoxelOctree> processed = Sets.newHashSet();
-          processUnprocessedTrees(processed, octree.treesInSphere(pos, 20.0, 0), 4, pos);
-          processUnprocessedTrees(processed, octree.treesInSphere(pos, 40.0, 0), 3, pos);
-          processUnprocessedTrees(processed, octree.treesInSphere(pos, 80.0, 0), 2, pos);
-          removeGeometriesNotInSet(processed);
+          updateGeometries(pos);
         }
       }
     });
     updater.start();
+  }
+  
+  public void updateGeometries(Position pos) {
+    Set<VoxelOctree> processed = Sets.newHashSet();
+    processUnprocessedTrees(processed, octree.treesInSphere(pos, 20.0, 0), 4, pos);
+    processUnprocessedTrees(processed, octree.treesInSphere(pos, 40.0, 0), 3, pos);
+    processUnprocessedTrees(processed, octree.treesInSphere(pos, 80.0, 0), 2, pos);
+    removeGeometriesNotInSet(processed);
   }
   
   private void removeGeometriesNotInSet(Set<VoxelOctree> processed) {

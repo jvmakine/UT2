@@ -63,8 +63,7 @@ final class NoiseLevel {
   
   private void makeIfDoesNotExist(Vector3i pos) {
     if(data.containsKey(pos)) return;
-    int size = 1 << sizeLog2;
-    data.put(pos, new DoubleArray3d(size, size, size, new Random(seed ^ pos.hashCode())));
+    data.put(pos, new DoubleArray3d(sizeLog2, new Random(seed ^ pos.hashCode())));
   }
   
 }
