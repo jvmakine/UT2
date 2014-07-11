@@ -1,21 +1,19 @@
 package fi.haju.ut2.voxels.functions.perlinnoise;
 
-import java.util.Map;
 import java.util.Random;
-
-import com.google.common.collect.Maps;
 
 final class NoiseLevel {
   public final int sizeLog2;
   public final double amplitude;
-  public final Map<Vector3i, DoubleArray3d> data = Maps.newHashMap();
   public final int seed;
   private final DataAccessor accessor = new DataAccessor();
+  private DoubleArray3d[][] data;
   
   public NoiseLevel(int sizeLog2, double amplitude, int seed) {
     this.sizeLog2 = sizeLog2;
     this.amplitude = amplitude;
     this.seed = seed;
+    this.data = new DoubleArray3d[((1 << 4) << 4) << 4][];
   }
   
   /**
@@ -33,9 +31,17 @@ final class NoiseLevel {
       int gy = y >= 0 ? (y >> sizeLog2) : ~(~y >> sizeLog2);
       int gz = z >= 0 ? (z >> sizeLog2) : ~(~z >> sizeLog2);
       if(gx != lastx || gy != lasty || gz != lastz) {
-        Vector3i pos = new Vector3i(gx, gy, gz);
-        makeIfDoesNotExist(pos);
-        array = data.get(pos); 
+        // first index from least significant bits
+        int i = (gx & 0b1111) | ((gy << 4) & 0b11110000) | ((gz << 8) & 0b111100000000);
+        DoubleArray3d[] a = data[i];
+        if (a == null) {
+          a = data[i] = new DoubleArray3d[(1 << 8)];
+        }
+        int j = ((gx >> 4) ^ (gy >> 4) ^ (gz >> 4)) & 0b1111111;
+        if (a[j] == null) {
+          a[j] = new DoubleArray3d(sizeLog2, new Random(seed ^ i << 16 ^ j));
+        }
+        array = a[j]; 
         lastx = gx;
         lasty = gy;
         lastz = gz;
@@ -60,10 +66,5 @@ final class NoiseLevel {
         accessor.getValueAt(xi + 1, yi + 1, zi + 1)
     );
   }
-  
-  private void makeIfDoesNotExist(Vector3i pos) {
-    if(data.containsKey(pos)) return;
-    data.put(pos, new DoubleArray3d(sizeLog2, new Random(seed ^ pos.hashCode())));
-  }
-  
+    
 }

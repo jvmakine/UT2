@@ -3,7 +3,6 @@ package fi.haju.ut2.ui.render.octreerenderer;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 
@@ -25,8 +24,6 @@ import fi.haju.ut2.voxels.octree.VoxelOctree;
 @Singleton
 public class OctreeSurfaceGeometryGenerator implements OctreeGeometryGenerator {
   
-  private Logger log = Logger.getLogger(this.getClass().getName());
-
   private Set<OctreeComponent> collectComponents(VoxelOctree root, int renderLevel) {
     Set<OctreeComponent> components = Sets.newHashSet();
     Queue<VoxelOctree> tbp = Queues.newArrayDeque();
@@ -48,7 +45,6 @@ public class OctreeSurfaceGeometryGenerator implements OctreeGeometryGenerator {
 
   @Override
   public List<Geometry> generate(int renderLevel, VoxelOctree octree, AssetManager assetManager) {
-    log.info("starting octree mesh construction");
     Set<OctreeComponent> components = collectComponents(octree, renderLevel);
     Mesh m = new Mesh();
     int vertices = 0;
@@ -105,7 +101,6 @@ public class OctreeSurfaceGeometryGenerator implements OctreeGeometryGenerator {
     // TODO: Reverse components if they are facing the wrong way, cull back faces
     mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off);
     surface.setMaterial(mat);
-    log.info("octree mesh construction done");
     return Lists.newArrayList(surface);
   }
 
