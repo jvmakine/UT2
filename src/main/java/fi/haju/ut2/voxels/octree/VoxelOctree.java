@@ -75,11 +75,11 @@ public final class VoxelOctree {
         double zm = tree.faces[2].edges[0].minus.position.z;
         double zp = tree.faces[4].edges[0].minus.position.z;
         
-        if (center.x - radius < xm) { tree.parent = tree.generateOctreeWithChild(1); tree = tree.parent; }  
+        if (center.x - radius < xm) { tree.parent = tree.generateOctreeWithChild(6); tree = tree.parent; }  
         else if (center.x + radius > xp) { tree.parent = tree.generateOctreeWithChild(0); tree = tree.parent; }
-        else if (center.y - radius < ym) { tree.parent = tree.generateOctreeWithChild(4); tree = tree.parent; }
+        else if (center.y - radius < ym) { tree.parent = tree.generateOctreeWithChild(6); tree = tree.parent; }
         else if (center.y + radius > yp) { tree.parent = tree.generateOctreeWithChild(0); tree = tree.parent; }
-        else if (center.z - radius < zm) { tree.parent = tree.generateOctreeWithChild(3); tree = tree.parent; }
+        else if (center.z - radius < zm) { tree.parent = tree.generateOctreeWithChild(6); tree = tree.parent; }
         else if (center.z + radius > zp) { tree.parent = tree.generateOctreeWithChild(0); tree = tree.parent; }
         else throw new IllegalStateException();
       }
