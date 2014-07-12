@@ -13,7 +13,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.system.AppSettings;
 
 import fi.haju.ut2.ui.render.modules.SimpleLightingModule;
-import fi.haju.ut2.ui.render.octreerenderer.OctreeManager;
+import fi.haju.ut2.ui.render.octree.OctreeManager;
 
 @Singleton
 public class Game extends SimpleApplication {
