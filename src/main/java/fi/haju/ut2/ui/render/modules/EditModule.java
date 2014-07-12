@@ -17,6 +17,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 
 import fi.haju.ut2.ui.MeshUtils;
@@ -44,10 +45,22 @@ public class EditModule {
         if (editPoint != null && isPressed) {
           Vector3f location = editObject.getLocalTranslation();
           Quaternion rot = editObject.getLocalRotation();
-          octreeManager.addMeshAt(location, rot, new Sphere(30, 30, 2.0f));
+          //octreeManager.addMeshAt(location, rot, new Sphere(30, 30, 2.0f));
+          octreeManager.addMeshAt(location, rot, new Box(1.5f, 1.5f, 1.5f));
         }
       }
     }, InputController.EDIT_ADD);
+    
+    inputManager.addListener(new ActionListener() {
+      @Override public void onAction(String name, boolean isPressed, float tpf) {
+        if (editPoint != null && isPressed) {
+          Vector3f location = editObject.getLocalTranslation();
+          Quaternion rot = editObject.getLocalRotation();
+          //octreeManager.addMeshAt(location, rot, new Sphere(30, 30, 2.0f));
+          octreeManager.deleteMeshAt(location, rot, new Box(1.5f, 1.5f, 1.5f));
+        }
+      }
+    }, InputController.EDIT_DELETE);
     
   }
   

@@ -208,7 +208,13 @@ public class OctreeManager {
 
   public void addMeshAt(Vector3f location, Quaternion rot, Mesh mesh) {
     synchronized(editLock) {
-      incomingEdits.add(new OctreeEdit(mesh, location, rot));
+      incomingEdits.add(new OctreeEdit(mesh, location, rot, false));
+    }
+  }
+  
+  public void deleteMeshAt(Vector3f location, Quaternion rot, Mesh mesh) {
+    synchronized(editLock) {
+      incomingEdits.add(new OctreeEdit(mesh, location, rot, true));
     }
   }
   

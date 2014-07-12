@@ -8,11 +8,13 @@ public class OctreeEdit {
   public final Mesh mesh;
   public final Vector3f location;
   public final Quaternion rotation;
+  public final boolean delete;
   
-  public OctreeEdit(Mesh mesh, Vector3f location, Quaternion rotation) {
+  public OctreeEdit(Mesh mesh, Vector3f location, Quaternion rotation, boolean delete) {
     this.mesh = mesh;
     this.location = location;
     this.rotation = rotation;
+    this.delete = delete;
   }
   
 }

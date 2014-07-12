@@ -9,9 +9,11 @@ import com.jme3.input.controls.MouseButtonTrigger;
 public class InputController {
 
   public static final String EDIT_ADD = "edit-add";
+  public static final String EDIT_DELETE = "edit-delete";
   
   public void setup(InputManager inputManager) {
     inputManager.addMapping(EDIT_ADD, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+    inputManager.addMapping(EDIT_DELETE, new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
   }
   
 }
