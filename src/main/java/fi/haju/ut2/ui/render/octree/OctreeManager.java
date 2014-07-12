@@ -32,6 +32,7 @@ public class OctreeManager {
   private Position focus = null;
   private Thread updater;
   private boolean updaterRunning = false;
+  private List<Geometry> closestSpatials = Lists.newArrayList();
   
   public void updateFocusPosition(double x, double y, double z) {
     focus = new Position(x, y, z); 
@@ -87,7 +88,7 @@ public class OctreeManager {
   
   public void updateGeometries(Position pos) {
     Set<VoxelOctree> processed = Sets.newHashSet();
-    processUnprocessedTrees(processed, octree.treesInSphere(pos, 20.0, 0), 4, pos);
+    closestSpatials = processUnprocessedTrees(processed, octree.treesInSphere(pos, 20.0, 0), 4, pos);
     processUnprocessedTrees(processed, octree.treesInSphere(pos, 40.0, 0), 3, pos);
     processUnprocessedTrees(processed, octree.treesInSphere(pos, 80.0, 0), 2, pos);
     removeGeometriesNotInSet(processed);
@@ -104,19 +105,23 @@ public class OctreeManager {
     }
   }
   
-  private void processUnprocessedTrees(Set<VoxelOctree> processed, List<VoxelOctree> trees, int level, final Position focus) {
+  private List<Geometry> processUnprocessedTrees(Set<VoxelOctree> processed, List<VoxelOctree> trees, int level, final Position focus) {
     Collections.sort(trees, new Comparator<VoxelOctree>() {
       @Override public int compare(VoxelOctree o1, VoxelOctree o2) {
         return Double.compare(distance(focus, o1.center()), distance(focus, o2.center()));
       }
     });
+    List<Geometry> result = Lists.newArrayList();
     for (VoxelOctree tree : trees) {
-      if(!processed.contains(tree)) updateTreeMesh(level, tree);
+      if(!processed.contains(tree)) {
+        result.addAll(updateTreeMesh(level, tree));
+      }
     }
     processed.addAll(trees);
+    return result;
   }
   
-  private void updateTreeMesh(int level, VoxelOctree tree) {
+  private List<Geometry> updateTreeMesh(int level, VoxelOctree tree) {
     OctreeMesh old = geometryMap.get(tree);
     if (old != null && old.renderLevel != level) {
       old = null;
@@ -126,6 +131,9 @@ public class OctreeManager {
       updateLowerLevelNeighbours(level, tree);
       OctreeMesh m = new OctreeMesh(tree, generate(tree, level), level);
       attach(m);
+      return m.geometries;
+    } else {
+      return old.geometries;
     }
   }
 
@@ -140,6 +148,10 @@ public class OctreeManager {
     }
   }
   
+  public List<Geometry> getClosestSpatials() {
+    return closestSpatials;
+  }
+
   public void stop() {
     updaterRunning = false;
     updater = null;

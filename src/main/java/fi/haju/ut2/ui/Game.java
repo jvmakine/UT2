@@ -8,8 +8,12 @@ import javax.inject.Singleton;
 
 import com.google.common.collect.Lists;
 import com.jme3.app.SimpleApplication;
+import com.jme3.collision.CollisionResults;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.Sphere;
 import com.jme3.system.AppSettings;
 
 import fi.haju.ut2.ui.render.modules.SimpleLightingModule;
@@ -25,6 +29,8 @@ public class Game extends SimpleApplication {
   private List<Geometry> toBeAdded = Lists.newArrayList();
   private List<Geometry> toBeDeleted = Lists.newArrayList();
   
+  private Geometry editObject;
+  
   @Inject public Game(AppSettings appSettings) {
     setShowSettings(false);
     setSettings(appSettings);
@@ -35,11 +41,30 @@ public class Game extends SimpleApplication {
     octreeRenderManager.setup(assetManager);
     octreeRenderManager.start();
     getFlyByCamera().setMoveSpeed(5);
+    
+    editObject = MeshUtils.makeSimpleMesh(
+        new Sphere(6, 6, 0.2f),
+        new ColorRGBA(0.4f, 0.7f, 0.3f, 1.0f), assetManager);
   }
-
+  
   @Override public void simpleUpdate(float tpf) {
     Vector3f loc = getCamera().getLocation();
     octreeRenderManager.updateFocusPosition(loc.x, loc.y, loc.z);
+    updateGeometries();
+    updateEditPoint();
+  }
+
+  private void updateEditPoint() {
+    Vector3f editPoint = calculateEditPoint();
+    if (editPoint != null && editPoint.distance(getCamera().getLocation()) < 10) {
+      rootNode.attachChild(editObject);
+      editObject.setLocalTranslation(editPoint);
+    } else {
+      rootNode.detachChild(editObject);
+    }
+  }
+
+  private void updateGeometries() {
     synchronized(geometryLock) {
       for (Geometry g : toBeAdded) {
         rootNode.attachChild(g);
@@ -50,6 +75,23 @@ public class Game extends SimpleApplication {
       toBeAdded.clear();
       toBeDeleted.clear();
     }
+  }
+  
+  private Vector3f calculateEditPoint() {
+    List<Geometry> geometries = octreeRenderManager.getClosestSpatials();
+    Vector3f location = getCamera().getLocation();
+    Ray ray = new Ray(location, getCamera().getDirection());
+    Vector3f result = null;
+    for (Geometry g : geometries) {
+      CollisionResults collision = new CollisionResults();
+      if (g.collideWith(ray, collision) != 0) {
+        Vector3f closest = collision.getClosestCollision().getContactPoint();
+        if (result == null || result.distance(location) > closest.distance(location)) {
+          result = closest;
+        }
+      }
+    }
+    return result;
   }
   
   public void addGeometry(Geometry g) {
