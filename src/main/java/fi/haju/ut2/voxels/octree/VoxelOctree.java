@@ -139,8 +139,8 @@ public final class VoxelOctree {
   }
 
   public void compress() {
-   if (children == null) return;
-    if (!hasInternalFeatures()) {
+    if (children == null) return;
+    if (!hasInternalFeatures() && !hasEdgeFeatures()) {
       children = null;
       dividor = null;
       for(int i = 0; i < 6; ++i) {
