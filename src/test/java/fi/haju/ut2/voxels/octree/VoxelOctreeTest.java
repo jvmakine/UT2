@@ -23,6 +23,11 @@ public class VoxelOctreeTest {
     assertThat(tree.overlapsSphere(pos(10,10,10), 3), is(true));
   }
   
+  @Test public void correctly_finds_smallest_tree_containing_sphere() {
+    VoxelOctree tree = new VoxelOctree(pos(0,0,0), 50, new SinoidalFunction());
+    assertThat(tree.findSmallestTreeContainingSphere(pos(10,10,10), 9).depth, is(1));
+  }
+  
   @Test public void empty_octree_is_compressed_correctly() {
     VoxelOctree tree = new VoxelOctree(pos(0,0,0), 5, new GradientApproximatedFunction() {
       @Override public double value(double x, double y, double z) {

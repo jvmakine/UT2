@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.inject.Singleton;
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -109,7 +110,15 @@ public class OctreeManager {
       }
     }
     if (edit != null) {
-      System.out.print("edit at " + edit.location);
+      Vector3f l = edit.location;
+      Geometry g = new Geometry("edit", edit.mesh);
+      BoundingSphere sphere = new BoundingSphere(); 
+      g.setModelBound(sphere);
+      g.updateModelBound();
+      Vector3f c = sphere.getCenter();
+      double radius = sphere.getRadius();
+      VoxelOctree tree = octree.findSmallestTreeContainingSphere(new Position(c.x + l.x, c.y + l.y, c.z + l.z), radius);
+      System.out.println("edit depth " + tree.depth);
     }
   }
 

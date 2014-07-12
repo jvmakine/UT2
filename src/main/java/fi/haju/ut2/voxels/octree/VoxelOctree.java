@@ -41,7 +41,7 @@ public final class VoxelOctree {
   }
   
   public List<VoxelOctree> treesInSphere(Position center, double radius, int level) {
-    VoxelOctree tree = findTreeContainingSphere(center, radius);
+    VoxelOctree tree = findFirstParentTreeContainingSphere(center, radius);
     Queue<VoxelOctree> tbp = Queues.newArrayDeque();
     tbp.add(tree);
     List<VoxelOctree> result = Lists.newArrayList();
@@ -61,7 +61,25 @@ public final class VoxelOctree {
     return result;
   }
   
-  private VoxelOctree findTreeContainingSphere(Position center, double radius) {
+  public VoxelOctree findSmallestTreeContainingSphere(Position center, double radius) {
+    Queue<VoxelOctree> tbp = Queues.newArrayDeque();
+    tbp.add(findFirstParentTreeContainingSphere(center, radius));
+    while (!tbp.isEmpty()) {
+      VoxelOctree tree = tbp.remove();
+      VoxelOctree child = null;
+      if (tree.children == null) tree.divide();
+      for (int i = 0; i < 8; ++i) {
+        if (tree.children[i].overlapsSphere(center, radius)) {
+          if (child == null) child = tree.children[i];
+          else return tree;
+        }
+      }
+      tbp.add(child);
+    }
+    throw new IllegalStateException();
+  }
+  
+  public VoxelOctree findFirstParentTreeContainingSphere(Position center, double radius) {
     VoxelOctree tree = this;
     while (true) {
       if (tree.isSphereInside(center, radius)) return tree;
