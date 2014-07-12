@@ -364,6 +364,48 @@ public final class VoxelOctree {
     int numCollisions = g.collideWith(ray, collision); 
     return numCollisions % 2 != 0;
   }
+
+  public List<VoxelOctree> getLevelAffected(int level) {
+    if (depth == level) return Lists.newArrayList(this);
+    if (depth > level) return parent.getLevelAffected(level);
+    List<VoxelOctree> result = Lists.newArrayList();
+    if (children != null) {
+      for (int i = 0; i < 8; ++i) {
+        result.addAll(children[i].getLevelAffected(level));
+      }
+    }
+    return result;
+  }
+
+  public void mergeWith(VoxelOctree editTree) {
+    if (this.depth != editTree.depth) throw new IllegalStateException();
+    if (editTree.edited) this.edited = true;
+    for (int i = 0; i < 6; ++i) {
+      mergeFaces(faces[i], editTree.faces[i]);
+    }
+    if (editTree.children != null) {
+      if (children == null) divide();
+      for (int i = 0; i < 8; ++i) {
+        children[i].mergeWith(editTree.children[i]);
+      }
+    }
+  }
+
+  private static void mergeFaces(VoxelFace f1, VoxelFace f2) {
+    for (int i = 0; i < 4; ++i) {
+      VoxelEdge e1 = f1.edges[i];
+      VoxelEdge e2 = f2.edges[i];
+      e1.minus.positive |= e2.minus.positive;
+      e1.plus.positive |= e2.plus.positive;
+      if (e1.minus.positive == e1.plus.positive) {
+        e1.vertex = null;
+      } else {
+        if (e2.vertex != null) {
+          e1.vertex = e2.vertex;
+        }
+      }
+    }
+  }
   
 }
 

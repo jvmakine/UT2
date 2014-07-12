@@ -120,6 +120,12 @@ public class OctreeManager {
       VoxelOctree tree = octree.findSmallestTreeContainingSphere(new Position(c.x + l.x, c.y + l.y, c.z + l.z), radius);
       VoxelOctree editTree = tree.copyTopLevel();
       editTree.constructFromMeshToLevel(edit.mesh, edit.location, edit.rotation, 4);
+      tree.mergeWith(editTree);
+      List<VoxelOctree> updated = tree.getLevelAffected(0);
+      for (VoxelOctree update : updated) {
+        geometryMap.remove(update);
+        updateTreeMesh(4, update);
+      }
     }
   }
 
