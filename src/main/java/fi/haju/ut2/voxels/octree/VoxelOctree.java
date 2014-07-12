@@ -320,14 +320,10 @@ public final class VoxelOctree {
     );
   }
   
-  public void constructFromMeshToLevel(Mesh mesh, Vector3f location, Quaternion rotation, int level, Position center, double radius) {
+  public void constructFromMeshToLevel(Geometry g, int level, Position center, double radius) {
     children = null;
     function = new NegativeFunction();
     for (VoxelNode c : corners()) c.positive = false;
-    Geometry g = new Geometry("edit", mesh);
-    g.setLocalRotation(rotation);
-    g.setLocalTranslation(location);
-    g.updateModelBound();
     double l = faces[0].edges[0].edgeVector().length();
     for (VoxelEdge e : edges()) {
       if (e.hasChild()) continue;
@@ -352,7 +348,7 @@ public final class VoxelOctree {
       divide();
       for (int i = 0; i < 8; ++i) {
         if (children[i].overlapsSphere(center, radius)) {
-          children[i].constructFromMeshToLevel(mesh, location, rotation, level, center, radius);
+          children[i].constructFromMeshToLevel(g, level, center, radius);
         }
       }
     } else {

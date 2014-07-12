@@ -124,13 +124,15 @@ public class OctreeManager {
       Geometry g = new Geometry("edit", edit.mesh);
       BoundingSphere sphere = new BoundingSphere(); 
       g.setModelBound(sphere);
+      g.setLocalTranslation(edit.location);
+      g.setLocalRotation(edit.rotation);
       g.updateModelBound();
       Vector3f c = sphere.getCenter();
       double radius = sphere.getRadius();
       Position p = new Position(c.x + l.x, c.y + l.y, c.z + l.z);
       VoxelOctree tree = octree.findSmallestTreeContainingSphere(p, radius);
       VoxelOctree editTree = tree.copyTopLevel();
-      editTree.constructFromMeshToLevel(edit.mesh, edit.location, edit.rotation, 4, p, radius);
+      editTree.constructFromMeshToLevel(g, 4, p, radius);
       tree.mergeWith(editTree);
       List<VoxelOctree> updated = tree.getLevelAffected(0);
       for (VoxelOctree update : updated) {
