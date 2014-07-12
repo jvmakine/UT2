@@ -118,7 +118,8 @@ public class OctreeManager {
       Vector3f c = sphere.getCenter();
       double radius = sphere.getRadius();
       VoxelOctree tree = octree.findSmallestTreeContainingSphere(new Position(c.x + l.x, c.y + l.y, c.z + l.z), radius);
-      System.out.println("edit depth " + tree.depth);
+      VoxelOctree editTree = tree.copyTopLevel();
+      editTree.constructFromMeshToLevel(edit.mesh, edit.location, edit.rotation, 4);
     }
   }
 

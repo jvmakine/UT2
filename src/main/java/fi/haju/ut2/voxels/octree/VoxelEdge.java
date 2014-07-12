@@ -19,7 +19,7 @@ public class VoxelEdge {
   public VoxelEdge plusChild;
   public VoxelNode dividor = null;
   
-  private PositionWithNormal vertex;
+  public PositionWithNormal vertex;
   
   public VoxelEdge(VoxelNode from, VoxelNode to, Function3d function) {
     this.minus = from;

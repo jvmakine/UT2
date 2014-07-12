@@ -7,9 +7,17 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
+import com.jme3.collision.CollisionResult;
+import com.jme3.collision.CollisionResults;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Ray;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.voxels.functions.Function3d;
+import fi.haju.ut2.voxels.functions.NegativeFunction;
 import fi.haju.ut2.voxels.octree.utils.OctreeConstructionUtils;
 
 /**
@@ -26,6 +34,7 @@ public final class VoxelOctree {
   public Function3d function;
   public List<OctreeComponent> components;
   public int depth;
+  public boolean edited = false;
   
   public VoxelOctree() { }
   
@@ -172,6 +181,7 @@ public final class VoxelOctree {
     tbp.add(this);
     while(!tbp.isEmpty()) {
       VoxelOctree tree = tbp.remove();
+      if (tree.edited) continue;
       if(tree.depth >= level) continue;
       if (tree.children == null) tree.divide();
       for(int i = 0; i < 8; ++i) {
@@ -190,6 +200,7 @@ public final class VoxelOctree {
   }
   
   public void divide() {
+    if (edited) return;
     if (children != null) return;
     for (VoxelFace face : faces) face.divide(function);
     dividor = node(center());
@@ -289,5 +300,70 @@ public final class VoxelOctree {
   public double edgeLength() {
     return faces[0].edges[0].edgeVector().length();
   }
+
+  public VoxelOctree copyTopLevel() {
+    VoxelOctree copy = new VoxelOctree(faces[0].edges[0].minus.position, faces[0].edges[0].edgeVector().length(), function);
+    copy.depth = depth;
+    return copy;
+  }
+
+  public List<VoxelNode> corners() {
+    return Lists.newArrayList(
+      faces[0].edges[0].minus,
+      faces[0].edges[0].plus,
+      faces[0].edges[2].minus,
+      faces[0].edges[2].plus,
+      faces[5].edges[0].minus,
+      faces[5].edges[0].plus,
+      faces[5].edges[2].minus,
+      faces[5].edges[2].plus
+    );
+  }
+  
+  public void constructFromMeshToLevel(Mesh mesh, Vector3f location, Quaternion rotation, int level) {
+    children = null;
+    function = new NegativeFunction();
+    for (VoxelNode c : corners()) c.positive = false;
+    divideAllToLevel(level);
+    edited = true;
+    Geometry g = new Geometry("edit", mesh);
+    g.setLocalRotation(rotation);
+    g.setLocalTranslation(location);
+    g.updateModelBound();
+    double l = faces[0].edges[0].edgeVector().length();
+    for (VoxelEdge e : edges()) {
+      if (e.hasChild()) continue;
+      if (isInsideMesh(e.minus.position, g, (float)l)) {
+        e.minus.positive = true;
+      }
+    }
+    for (VoxelEdge e : edges()) {
+      if (e.hasChild()) continue;
+      if (e.minus.positive != e.plus.positive) {
+        Position direction = Position.substract(e.plus.position, e.minus.position).normalize(); 
+        Ray ray = new Ray(convert(e.minus.position), convert(direction));
+        CollisionResults collision = new CollisionResults();
+        g.collideWith(ray, collision); 
+        CollisionResult cr = collision.getClosestCollision();
+        e.vertex = new PositionWithNormal(convert(cr.getContactPoint()), convert(cr.getContactNormal()));
+      }
+    }
+  }
+
+  private static Position convert(Vector3f v) {
+    return new Position(v.x, v.y, v.z);
+  }
+
+  private static Vector3f convert(Position p) {
+    return new Vector3f((float)p.x, (float)(p.y), (float)p.z);
+  }
+  
+  private static boolean isInsideMesh(Position position, Geometry g, float radius) {
+    Ray ray = new Ray(convert(position), new Vector3f(0,1,0));
+    CollisionResults collision = new CollisionResults();
+    int numCollisions = g.collideWith(ray, collision); 
+    return numCollisions % 2 != 0;
+  }
   
 }
+
