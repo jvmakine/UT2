@@ -18,7 +18,6 @@ public class GameModule extends AbstractModule {
     VoxelOctree result = new VoxelOctree(new Position(-4, -4, -4), 8,
         new PerlinTerrainFunction()
     );
-    //result.constructFromMeshToLevel(new Sphere(10, 10, 3), new Vector3f(0,0,0), new Quaternion(0, 0, 0, 0), 4, new Position(0,0,0), 3);
     return result;
   }
 
