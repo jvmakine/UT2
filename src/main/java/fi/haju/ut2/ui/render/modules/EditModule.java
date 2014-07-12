@@ -6,10 +6,12 @@ import javax.inject.Inject;
 
 import com.google.inject.Singleton;
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.collision.CollisionResults;
 import com.jme3.input.InputManager;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -35,11 +37,14 @@ public class EditModule {
     editObject = MeshUtils.makeSimpleMesh(
         new Sphere(6, 6, 0.2f),
         new ColorRGBA(0.4f, 0.7f, 0.3f, 1.0f), assetManager);
+    editObject.setModelBound(new BoundingSphere());
     
     inputManager.addListener(new ActionListener() {
       @Override public void onAction(String name, boolean isPressed, float tpf) {
         if (editPoint != null && isPressed) {
-          System.out.println("edit at " + editPoint);
+          Vector3f location = editObject.getLocalTranslation();
+          Quaternion rot = editObject.getLocalRotation();
+          octreeManager.addMeshAt(location, rot, editObject.getMesh());
         }
       }
     }, InputController.EDIT_ADD);

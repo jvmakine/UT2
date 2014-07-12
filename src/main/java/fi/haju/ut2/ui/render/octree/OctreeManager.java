@@ -13,7 +13,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.inject.Singleton;
 import com.jme3.asset.AssetManager;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.ui.Game;
@@ -33,6 +36,9 @@ public class OctreeManager {
   private Thread updater;
   private boolean updaterRunning = false;
   private List<Geometry> closestSpatials = Lists.newArrayList();
+  private List<OctreeEdit> incomingEdits = Lists.newArrayList();
+  
+  private Object editLock = new Object();
   
   public void updateFocusPosition(double x, double y, double z) {
     focus = new Position(x, y, z); 
@@ -91,9 +97,22 @@ public class OctreeManager {
     closestSpatials = processUnprocessedTrees(processed, octree.treesInSphere(pos, 20.0, 0), 4, pos);
     processUnprocessedTrees(processed, octree.treesInSphere(pos, 40.0, 0), 3, pos);
     processUnprocessedTrees(processed, octree.treesInSphere(pos, 80.0, 0), 2, pos);
+    processEdits();
     removeGeometriesNotInSet(processed);
   }
   
+  private void processEdits() {
+    OctreeEdit edit = null;
+    synchronized(editLock) {
+      if (!incomingEdits.isEmpty()) {
+        edit = incomingEdits.remove(0);
+      }
+    }
+    if (edit != null) {
+      System.out.print("edit at " + edit.location);
+    }
+  }
+
   private void removeGeometriesNotInSet(Set<VoxelOctree> processed) {
     for (VoxelOctree tree : geometryMap.keySet()) {
       if (!processed.contains(tree)) {
@@ -155,6 +174,12 @@ public class OctreeManager {
   public void stop() {
     updaterRunning = false;
     updater = null;
+  }
+
+  public void addMeshAt(Vector3f location, Quaternion rot, Mesh mesh) {
+    synchronized(editLock) {
+      incomingEdits.add(new OctreeEdit(mesh, location, rot));
+    }
   }
   
 }
