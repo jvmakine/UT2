@@ -320,12 +320,10 @@ public final class VoxelOctree {
     );
   }
   
-  public void constructFromMeshToLevel(Mesh mesh, Vector3f location, Quaternion rotation, int level) {
+  public void constructFromMeshToLevel(Mesh mesh, Vector3f location, Quaternion rotation, int level, Position center, double radius) {
     children = null;
     function = new NegativeFunction();
     for (VoxelNode c : corners()) c.positive = false;
-    divideAllToLevel(level);
-    edited = true;
     Geometry g = new Geometry("edit", mesh);
     g.setLocalRotation(rotation);
     g.setLocalTranslation(location);
@@ -345,8 +343,20 @@ public final class VoxelOctree {
         CollisionResults collision = new CollisionResults();
         g.collideWith(ray, collision); 
         CollisionResult cr = collision.getClosestCollision();
+        // FIXME: should never be null
+        if (cr == null) continue;
         e.vertex = new PositionWithNormal(convert(cr.getContactPoint()), convert(cr.getContactNormal()));
       }
+    }
+    if (depth < level) {
+      divide();
+      for (int i = 0; i < 8; ++i) {
+        if (children[i].overlapsSphere(center, radius)) {
+          children[i].constructFromMeshToLevel(mesh, location, rotation, level, center, radius);
+        }
+      }
+    } else {
+      edited = true;
     }
   }
 

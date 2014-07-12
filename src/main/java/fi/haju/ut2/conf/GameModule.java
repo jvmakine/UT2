@@ -1,9 +1,6 @@
 package fi.haju.ut2.conf;
 
 import com.google.inject.AbstractModule;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.shape.Sphere;
 import com.jme3.system.AppSettings;
 
 import fi.haju.ut2.geometry.Position;
@@ -21,7 +18,7 @@ public class GameModule extends AbstractModule {
     VoxelOctree result = new VoxelOctree(new Position(-4, -4, -4), 8,
         new PerlinTerrainFunction()
     );
-    result.constructFromMeshToLevel(new Sphere(10, 10, 3), new Vector3f(0,0,0), new Quaternion(0, 0, 0, 0), 4);
+    //result.constructFromMeshToLevel(new Sphere(10, 10, 3), new Vector3f(0,0,0), new Quaternion(0, 0, 0, 0), 4, new Position(0,0,0), 3);
     return result;
   }
 

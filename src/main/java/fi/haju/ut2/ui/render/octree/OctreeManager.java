@@ -21,6 +21,7 @@ import com.jme3.scene.Mesh;
 
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.ui.Game;
+import fi.haju.ut2.voxels.octree.VoxelEdge;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 import static fi.haju.ut2.geometry.Position.distance;
 
@@ -59,6 +60,15 @@ public class OctreeManager {
         game.removeGeometry(geometry);
       } 
     }
+  }
+  
+  public void detach(VoxelOctree octree) {
+    if (geometryMap.containsKey(octree)) {
+      for(Geometry geometry : geometryMap.get(octree).geometries) {
+        game.removeGeometry(geometry);
+      }
+    }
+    geometryMap.remove(octree);
   }
 
   public List<Geometry> generate(VoxelOctree octree, int renderLevel) {
@@ -117,13 +127,14 @@ public class OctreeManager {
       g.updateModelBound();
       Vector3f c = sphere.getCenter();
       double radius = sphere.getRadius();
-      VoxelOctree tree = octree.findSmallestTreeContainingSphere(new Position(c.x + l.x, c.y + l.y, c.z + l.z), radius);
+      Position p = new Position(c.x + l.x, c.y + l.y, c.z + l.z);
+      VoxelOctree tree = octree.findSmallestTreeContainingSphere(p, radius);
       VoxelOctree editTree = tree.copyTopLevel();
-      editTree.constructFromMeshToLevel(edit.mesh, edit.location, edit.rotation, 4);
+      editTree.constructFromMeshToLevel(edit.mesh, edit.location, edit.rotation, 4, p, radius);
       tree.mergeWith(editTree);
       List<VoxelOctree> updated = tree.getLevelAffected(0);
       for (VoxelOctree update : updated) {
-        geometryMap.remove(update);
+        detach(update);
         updateTreeMesh(4, update);
       }
     }
