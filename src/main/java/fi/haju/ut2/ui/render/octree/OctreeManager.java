@@ -21,7 +21,6 @@ import com.jme3.scene.Mesh;
 
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.ui.Game;
-import fi.haju.ut2.voxels.octree.VoxelEdge;
 import fi.haju.ut2.voxels.octree.VoxelOctree;
 import static fi.haju.ut2.geometry.Position.distance;
 
@@ -136,8 +135,10 @@ public class OctreeManager {
       tree.mergeWith(editTree);
       List<VoxelOctree> updated = tree.getLevelAffected(0);
       for (VoxelOctree update : updated) {
-        detach(update);
-        updateTreeMesh(4, update);
+        if (update.overlapsSphere(p, radius)) {
+          detach(update);
+          updateTreeMesh(4, update);
+        }
       }
     }
   }

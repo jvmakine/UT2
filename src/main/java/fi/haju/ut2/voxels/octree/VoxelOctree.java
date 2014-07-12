@@ -9,11 +9,9 @@ import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
 
 import fi.haju.ut2.geometry.Position;
 import fi.haju.ut2.voxels.functions.Function3d;
@@ -323,25 +321,33 @@ public final class VoxelOctree {
   public void constructFromMeshToLevel(Geometry g, int level, Position center, double radius) {
     children = null;
     function = new NegativeFunction();
-    for (VoxelNode c : corners()) c.positive = false;
-    double l = faces[0].edges[0].edgeVector().length();
-    for (VoxelEdge e : edges()) {
-      if (e.hasChild()) continue;
-      if (isInsideMesh(e.minus.position, g, (float)l)) {
-        e.minus.positive = true;
+    if (depth >= level) {
+      Set<VoxelEdge> edges = Sets.newHashSet();
+      for (int i = 0; i < 4; ++i) {
+        edges.add(faces[0].edges[i]);
+        edges.add(faces[5].edges[i]);
+        edges.add(faces[1].edges[i]);
+        edges.add(faces[3].edges[i]);
       }
-    }
-    for (VoxelEdge e : edges()) {
-      if (e.hasChild()) continue;
-      if (e.minus.positive != e.plus.positive) {
-        Position direction = Position.substract(e.plus.position, e.minus.position).normalize(); 
-        Ray ray = new Ray(convert(e.minus.position), convert(direction));
-        CollisionResults collision = new CollisionResults();
-        g.collideWith(ray, collision); 
-        CollisionResult cr = collision.getClosestCollision();
-        // FIXME: should never be null
-        if (cr == null) continue;
-        e.vertex = new PositionWithNormal(convert(cr.getContactPoint()), convert(cr.getContactNormal()));
+      for (VoxelEdge e : edges) {
+        if (isInsideMesh(e.minus.position, g)) {
+          e.minus.positive = true;
+        }
+        if (isInsideMesh(e.plus.position, g)) {
+          e.plus.positive = true;
+        }
+      }
+      for (VoxelEdge e : edges) {
+        if (e.minus.positive != e.plus.positive) {
+          Position direction = Position.substract(e.plus.position, e.minus.position).normalize(); 
+          Ray ray = new Ray(convert(e.minus.position), convert(direction));
+          CollisionResults collision = new CollisionResults();
+          g.collideWith(ray, collision); 
+          CollisionResult cr = collision.getClosestCollision();
+          // FIXME: should never be null
+          if (cr == null) continue;
+          e.vertex = new PositionWithNormal(convert(cr.getContactPoint()), convert(cr.getContactNormal()));
+        }
       }
     }
     if (depth < level) {
@@ -364,7 +370,7 @@ public final class VoxelOctree {
     return new Vector3f((float)p.x, (float)(p.y), (float)p.z);
   }
   
-  private static boolean isInsideMesh(Position position, Geometry g, float radius) {
+  private static boolean isInsideMesh(Position position, Geometry g) {
     Ray ray = new Ray(convert(position), new Vector3f(0,1,0));
     CollisionResults collision = new CollisionResults();
     int numCollisions = g.collideWith(ray, collision); 

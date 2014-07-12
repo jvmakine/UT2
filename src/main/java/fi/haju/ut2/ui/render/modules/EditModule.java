@@ -44,7 +44,7 @@ public class EditModule {
         if (editPoint != null && isPressed) {
           Vector3f location = editObject.getLocalTranslation();
           Quaternion rot = editObject.getLocalRotation();
-          octreeManager.addMeshAt(location, rot, new Sphere(10, 10, 2.0f));
+          octreeManager.addMeshAt(location, rot, new Sphere(30, 30, 2.0f));
         }
       }
     }, InputController.EDIT_ADD);
