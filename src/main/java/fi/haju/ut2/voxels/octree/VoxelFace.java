@@ -227,6 +227,9 @@ public class VoxelFace {
   }
 
   private final List<FaceSegment> segment(VoxelEdge e1, VoxelEdge e2) {
+    if (e1.vertex() == null || e2.vertex() == null) {
+      throw new IllegalStateException();
+    }
     return Lists.newArrayList(new FaceSegment(e1.vertex(), e2.vertex()));
   }
 
@@ -288,6 +291,13 @@ public class VoxelFace {
       if (edges[i].vertex() != null) return true;
     }
     return false;
+  }
+
+  public boolean valid() {
+    for (int i = 0; i < 4; ++i) {
+      if (edges[i].minus.positive != edges[i].plus.positive && edges[i].vertex() == null) return false;
+    }
+    return true;
   }
 
 }

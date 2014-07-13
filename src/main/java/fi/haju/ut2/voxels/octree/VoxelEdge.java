@@ -83,7 +83,7 @@ public class VoxelEdge {
   public PositionWithNormal vertex() {
     if(hasChild()) {
       PositionWithNormal mv = minusChild.vertex();
-      PositionWithNormal pv = plusChild.vertex();
+      PositionWithNormal pv = plusChild.vertex(); 
       return mv == null ? pv : mv;
     } else {
       return vertex;
@@ -106,6 +106,22 @@ public class VoxelEdge {
     plusChild = edge(dividor, plus, function);
     minusChild.parent = this;
     plusChild.parent = this;
+  }
+
+  public boolean hasFeature() {
+    return minus.positive != plus.positive;
+  }
+
+  public void setVertex(PositionWithNormal v) {
+    if (!hasChild()) {
+      vertex = v;
+    } else {
+      if (v.position.distance(minus.position) < v.position.distance(plus.position)) {
+        minusChild.setVertex(v);
+      } else {
+        plusChild.setVertex(v);
+      }
+    }
   }
   
 }

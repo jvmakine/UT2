@@ -132,7 +132,11 @@ public class OctreeManager {
       VoxelOctree tree = octree.findSmallestTreeContainingSphere(p, radius);
       VoxelOctree editTree = tree.copyTopLevel();
       editTree.constructFromMeshToLevel(g, 4, p, radius);
-      tree.mergeWith(editTree);
+      if (edit.delete) {
+        tree.delete(editTree);
+      } else {
+        tree.mergeWith(editTree);
+      }
       List<VoxelOctree> updated = tree.getLevelAffected(0);
       for (VoxelOctree update : updated) {
         if (update.overlapsSphere(p, radius)) {

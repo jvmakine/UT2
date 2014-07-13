@@ -138,9 +138,18 @@ public final class VoxelOctree {
     return true;
   }
 
+  public boolean containsEditions() {
+    boolean wasEdited = false;
+    if (children == null) return edited;
+    for (int i = 0; i < 8; ++i) {
+      wasEdited |= children[i].containsEditions();
+    }
+    return wasEdited;
+  }
+  
   public void compress() {
     if (children == null) return;
-    if (!hasInternalFeatures() && !hasEdgeFeatures()) {
+    if (!hasInternalFeatures() && !hasEdgeFeatures() && !containsEditions()) {
       children = null;
       dividor = null;
       for(int i = 0; i < 6; ++i) {
@@ -345,10 +354,11 @@ public final class VoxelOctree {
           g.collideWith(ray, collision); 
           CollisionResult cr = collision.getClosestCollision();
           // FIXME: should never be null
-          if (cr == null) continue;
+          //if (cr == null) continue;
           e.vertex = new PositionWithNormal(convert(cr.getContactPoint()), convert(cr.getContactNormal()));
         }
       }
+      edited = true;
     }
     if (depth < level) {
       divide();
@@ -357,8 +367,6 @@ public final class VoxelOctree {
           children[i].constructFromMeshToLevel(g, level, center, radius);
         }
       }
-    } else {
-      edited = true;
     }
   }
 
@@ -391,16 +399,35 @@ public final class VoxelOctree {
 
   public void mergeWith(VoxelOctree editTree) {
     if (this.depth != editTree.depth) throw new IllegalStateException();
-    if (editTree.edited) this.edited = true;
+    //if (editTree.children == null && this.children != null) return;
     for (int i = 0; i < 6; ++i) {
       mergeFaces(faces[i], editTree.faces[i]);
     }
-    if (editTree.children != null) {
+    if (editTree.children == null) {
+      
+    } else {
       if (children == null) divide();
       for (int i = 0; i < 8; ++i) {
         children[i].mergeWith(editTree.children[i]);
       }
     }
+    if (editTree.edited) this.edited = true;
+  }
+  
+  public void delete(VoxelOctree editTree) {
+    if (this.depth != editTree.depth) throw new IllegalStateException();
+    if (editTree.children == null && this.children != null) return;
+    if (editTree.children == null) {
+      for (int i = 0; i < 6; ++i) {
+        deleteFaces(faces[i], editTree.faces[i]);
+      }
+    } else {
+      if (children == null) divide();
+      for (int i = 0; i < 8; ++i) {
+        children[i].delete(editTree.children[i]);
+      }
+    }
+    if (editTree.edited) this.edited = true;
   }
 
   private static void mergeFaces(VoxelFace f1, VoxelFace f2) {
@@ -412,11 +439,28 @@ public final class VoxelOctree {
       if (e1.minus.positive == e1.plus.positive) {
         e1.vertex = null;
       } else {
-        if (e2.vertex != null) {
-          e1.vertex = e2.vertex;
+        if (e2.vertex() != null) {
+          e1.setVertex(e2.vertex());
         }
       }
     }
+  }
+  
+  private static void deleteFaces(VoxelFace f1, VoxelFace f2) {
+    for (int i = 0; i < 4; ++i) {
+      VoxelEdge e1 = f1.edges[i];
+      VoxelEdge e2 = f2.edges[i];
+      e1.minus.positive = e1.minus.positive & !e2.minus.positive;
+      e1.plus.positive = e1.plus.positive & !e2.plus.positive;
+      if (e1.minus.positive == e1.plus.positive) {
+        e1.vertex = null;
+      } else {
+        PositionWithNormal v = e2.vertex();
+        if (v != null) {
+          e1.setVertex(new PositionWithNormal(v.position, v.normal.inverse()));
+        }
+      }
+    }    
   }
   
 }
