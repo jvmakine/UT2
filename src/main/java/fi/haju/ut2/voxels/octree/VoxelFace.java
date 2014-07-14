@@ -3,6 +3,7 @@ package fi.haju.ut2.voxels.octree;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
@@ -17,6 +18,8 @@ import static fi.haju.ut2.geometry.Position.substract;
 import static fi.haju.ut2.voxels.octree.VoxelEdge.edge;
 
 public class VoxelFace {
+  
+  private static Logger logger = Logger.getLogger(VoxelFace.class.getName());
   
   public VoxelNode dividor = null;
   public VoxelFace[] children; // 0 = --, 1 = -+, 2 = +-, 3 = ++
@@ -228,7 +231,9 @@ public class VoxelFace {
 
   private final List<FaceSegment> segment(VoxelEdge e1, VoxelEdge e2) {
     if (e1.vertex() == null || e2.vertex() == null) {
-      throw new IllegalStateException();
+      // FIXME: Deletion operation causes invalid faces, fix it!
+      logger.warning("invalid segment!");
+      return Lists.newArrayList();
     }
     return Lists.newArrayList(new FaceSegment(e1.vertex(), e2.vertex()));
   }
