@@ -409,6 +409,7 @@ public final class VoxelOctree {
   }
   
   public void delete(VoxelOctree editTree) {
+    //FIXME: deletion may cause invalid segments as explained in VoxelFace class. Fix this!
     if (editTree.children == null && this.children != null) return;
     if (editTree.children == null) {
       for (int i = 0; i < 6; ++i) {
