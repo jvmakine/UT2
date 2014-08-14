@@ -1,5 +1,6 @@
 package fi.haju.ut2.voxels.functions.perlinnoise;
 
+import java.util.HashMap;
 import java.util.Random;
 
 final class NoiseLevel {
@@ -7,13 +8,12 @@ final class NoiseLevel {
   public final double amplitude;
   public final int seed;
   private final DataAccessor accessor = new DataAccessor();
-  private DoubleArray3d[][] data;
+  private HashMap<Long, DoubleArray3d> data = new HashMap<>();
   
   public NoiseLevel(int sizeLog2, double amplitude, int seed) {
     this.sizeLog2 = sizeLog2;
     this.amplitude = amplitude;
     this.seed = seed;
-    this.data = new DoubleArray3d[((1 << 4) << 4) << 4][];
   }
   
   /**
@@ -31,22 +31,17 @@ final class NoiseLevel {
       int gy = y >= 0 ? (y >> sizeLog2) : ~(~y >> sizeLog2);
       int gz = z >= 0 ? (z >> sizeLog2) : ~(~z >> sizeLog2);
       if(gx != lastx || gy != lasty || gz != lastz) {
-        // first index from least significant bits
-        int i = (gx & 0b1111) | ((gy << 4) & 0b11110000) | ((gz << 8) & 0b111100000000);
-        DoubleArray3d[] a = data[i];
-        if (a == null) {
-          a = data[i] = new DoubleArray3d[(1 << 8)];
+        long key = ((long)gx) ^ (((long)gz) << 21) ^ (((long)gy) << 42);
+        array = data.get(key);
+        if (array == null) {
+          array = new DoubleArray3d(sizeLog2, new Random(seed ^ key));
+          data.put(key, array);
         }
-        int j = ((gx >> 4) ^ (gy >> 4) ^ (gz >> 4)) & 0b1111111;
-        if (a[j] == null) {
-          a[j] = new DoubleArray3d(sizeLog2, new Random(seed ^ i << 16 ^ j));
-        }
-        array = a[j]; 
         lastx = gx;
         lasty = gy;
         lastz = gz;
       }
-      return amplitude * array.get(x - (gx << sizeLog2), y - (gy << sizeLog2), z - (gz << sizeLog2));
+      return array.get(x - (gx << sizeLog2), y - (gy << sizeLog2), z - (gz << sizeLog2));
     }
     
   }
@@ -55,7 +50,7 @@ final class NoiseLevel {
     int xi = (int)Math.floor(x);
     int yi = (int)Math.floor(y);
     int zi = (int)Math.floor(z);
-    return InterpolationUtil.interpolateLinear3d(x - xi, y - yi, z - zi,
+    return amplitude * InterpolationUtil.interpolateLinear3d(x - xi, y - yi, z - zi,
         accessor.getValueAt(xi, yi, zi),
         accessor.getValueAt(xi + 1, yi, zi),
         accessor.getValueAt(xi, yi + 1, zi),
